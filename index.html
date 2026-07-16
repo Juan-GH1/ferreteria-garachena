@@ -249,6 +249,131 @@
         </div>
     </div>
 
+    <!-- MODAL DE CHECKOUT (formulario de 2 pasos) -->
+    <div id="checkout-modal" class="hidden fixed inset-0 z-[120]">
+        <div id="checkout-backdrop" class="absolute inset-0 bg-slate-900/60"></div>
+
+        <div class="relative min-h-full flex items-center justify-center p-4">
+            <div class="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+                <div class="flex items-center justify-between p-5 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-brand-dark">Finalizar Compra</h3>
+                        <p id="checkout-step-label" class="text-xs text-slate-400 font-semibold mt-0.5">Paso 1 de 2 · Datos y entrega</p>
+                    </div>
+                    <button id="checkout-close-btn" type="button" class="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50" title="Cerrar">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form id="checkout-form" class="p-5 space-y-5" novalidate>
+                    <!-- PASO 1: Datos y entrega -->
+                    <div id="checkout-step-1" class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre completo</label>
+                            <input type="text" id="checkout-name" autocomplete="name" required
+                                   class="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">RUT</label>
+                                <input type="text" id="checkout-rut" placeholder="12345678-9" required
+                                       class="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Teléfono</label>
+                                <input type="tel" id="checkout-phone" placeholder="+56 9 1234 5678" autocomplete="tel" required
+                                       class="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Email</label>
+                            <input type="email" id="checkout-email" autocomplete="email" required
+                                   class="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white">
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tipo de entrega</label>
+                            <div class="mt-2 space-y-2">
+                                <label data-delivery-option class="flex items-center justify-between gap-3 p-3 border-2 border-slate-200 rounded-xl cursor-pointer transition-colors">
+                                    <span class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                        <input type="radio" name="delivery_type" value="Retiro Providencia" checked class="text-brand-blue focus:ring-brand-blue">
+                                        Retiro en Providencia
+                                    </span>
+                                    <span class="text-xs font-bold text-emerald-600">Gratis</span>
+                                </label>
+                                <label data-delivery-option class="flex items-center justify-between gap-3 p-3 border-2 border-slate-200 rounded-xl cursor-pointer transition-colors">
+                                    <span class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                        <input type="radio" name="delivery_type" value="Retiro Vitacura" class="text-brand-blue focus:ring-brand-blue">
+                                        Retiro en Vitacura
+                                    </span>
+                                    <span class="text-xs font-bold text-emerald-600">Gratis</span>
+                                </label>
+                                <label data-delivery-option class="flex items-center justify-between gap-3 p-3 border-2 border-slate-200 rounded-xl cursor-pointer transition-colors">
+                                    <span class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                        <input type="radio" name="delivery_type" value="Despacho a Domicilio RM" class="text-brand-blue focus:ring-brand-blue">
+                                        Despacho a Domicilio RM
+                                    </span>
+                                    <span class="text-xs font-bold text-slate-500">+$3.990</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <p id="checkout-step1-error" class="hidden text-sm font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl p-3"></p>
+                    </div>
+
+                    <!-- PASO 2: Resumen y pago simulado -->
+                    <div id="checkout-step-2" class="hidden space-y-4">
+                        <div id="checkout-summary-items" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                        <div class="border-t border-slate-100 pt-3 space-y-1.5">
+                            <div class="flex items-center justify-between text-sm text-slate-500 font-semibold">
+                                <span>Subtotal (neto)</span><span id="checkout-subtotal">$0</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm text-slate-500 font-semibold">
+                                <span>IVA (19%)</span><span id="checkout-iva">$0</span>
+                            </div>
+                            <div id="checkout-dispatch-row" class="hidden flex items-center justify-between text-sm text-slate-500 font-semibold">
+                                <span>Despacho a domicilio</span><span id="checkout-dispatch-fee">$0</span>
+                            </div>
+                            <div class="flex items-center justify-between text-base font-black text-brand-dark pt-2 border-t border-slate-200">
+                                <span>Total a pagar</span><span id="checkout-total">$0</span>
+                            </div>
+                        </div>
+                        <p id="checkout-step2-error" class="hidden text-sm font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl p-3"></p>
+                    </div>
+
+                    <div class="flex items-center gap-3 pt-2">
+                        <button id="checkout-back-btn" type="button" class="hidden flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors">
+                            Volver
+                        </button>
+                        <button id="checkout-next-btn" type="button" class="flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors">
+                            Continuar
+                        </button>
+                        <button id="checkout-submit-btn" type="submit" class="hidden flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors">
+                            Confirmar Pedido (Simular Pago)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ÉXITO -->
+    <div id="success-modal" class="hidden fixed inset-0 z-[130]">
+        <div class="absolute inset-0 bg-slate-900/60"></div>
+        <div class="relative min-h-full flex items-center justify-center p-4">
+            <div class="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-8 text-center">
+                <div class="mx-auto w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+                    <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+                </div>
+                <h3 id="success-title" class="text-lg font-extrabold text-brand-dark">¡Pedido confirmado!</h3>
+                <p id="success-message" class="text-sm text-slate-500 mt-2"></p>
+                <button id="success-close-btn" type="button" class="w-full mt-6 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notificaciones flotantes (agregado al carrito, validaciones de stock) -->
     <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] bg-brand-dark text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl max-w-xs text-center"></div>
 
@@ -666,11 +791,237 @@
         document.getElementById('cart-open-btn-desktop').addEventListener('click', openCart);
         document.getElementById('cart-close-btn').addEventListener('click', closeCart);
         cartBackdrop.addEventListener('click', closeCart);
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') closeCart();
-        });
         document.getElementById('cart-checkout-btn').addEventListener('click', () => {
-            showToast('El pago en línea estará disponible próximamente.');
+            closeCart();
+            openCheckout();
+        });
+
+        // --- Checkout: formulario de 2 pasos ---
+        const DISPATCH_FEE = 3990;
+
+        const checkoutModal = document.getElementById('checkout-modal');
+        const checkoutBackdrop = document.getElementById('checkout-backdrop');
+        const checkoutStep1 = document.getElementById('checkout-step-1');
+        const checkoutStep2 = document.getElementById('checkout-step-2');
+        const checkoutStepLabel = document.getElementById('checkout-step-label');
+        const checkoutBackBtn = document.getElementById('checkout-back-btn');
+        const checkoutNextBtn = document.getElementById('checkout-next-btn');
+        const checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
+        const checkoutForm = document.getElementById('checkout-form');
+        const successModal = document.getElementById('success-modal');
+
+        // Valida un RUT chileno: formato + dígito verificador (módulo 11).
+        function isValidRut(rutRaw) {
+            const rut = (rutRaw || '').replace(/\./g, '').replace(/-/g, '').toUpperCase();
+            if (!/^\d{7,8}[0-9K]$/.test(rut)) return false;
+
+            const body = rut.slice(0, -1);
+            const dv = rut.slice(-1);
+            let sum = 0;
+            let multiplier = 2;
+            for (let i = body.length - 1; i >= 0; i--) {
+                sum += Number(body[i]) * multiplier;
+                multiplier = multiplier === 7 ? 2 : multiplier + 1;
+            }
+            const remainder = 11 - (sum % 11);
+            const expectedDv = remainder === 11 ? '0' : remainder === 10 ? 'K' : String(remainder);
+            return dv === expectedDv;
+        }
+
+        function updateDeliveryHighlight() {
+            document.querySelectorAll('[data-delivery-option]').forEach((label) => {
+                const radio = label.querySelector('input[type="radio"]');
+                label.classList.toggle('border-brand-blue', radio.checked);
+                label.classList.toggle('bg-brand-blueLight', radio.checked);
+            });
+        }
+
+        document.querySelectorAll('input[name="delivery_type"]').forEach((radio) => {
+            radio.addEventListener('change', updateDeliveryHighlight);
+        });
+
+        function getSelectedDeliveryType() {
+            const checked = checkoutForm.querySelector('input[name="delivery_type"]:checked');
+            return checked ? checked.value : null;
+        }
+
+        function hideCheckoutErrors() {
+            document.getElementById('checkout-step1-error').classList.add('hidden');
+            document.getElementById('checkout-step2-error').classList.add('hidden');
+        }
+
+        function showCheckoutError(step, message) {
+            const el = document.getElementById(`checkout-step${step}-error`);
+            el.textContent = message;
+            el.classList.remove('hidden');
+        }
+
+        function goToCheckoutStep(step) {
+            const isStep1 = step === 1;
+            checkoutStep1.classList.toggle('hidden', !isStep1);
+            checkoutStep2.classList.toggle('hidden', isStep1);
+            checkoutBackBtn.classList.toggle('hidden', isStep1);
+            checkoutNextBtn.classList.toggle('hidden', !isStep1);
+            checkoutSubmitBtn.classList.toggle('hidden', isStep1);
+            checkoutStepLabel.textContent = isStep1 ? 'Paso 1 de 2 · Datos y entrega' : 'Paso 2 de 2 · Resumen y pago';
+            if (!isStep1) renderCheckoutSummary();
+        }
+
+        function validateCheckoutStep1() {
+            const name = document.getElementById('checkout-name').value.trim();
+            const rut = document.getElementById('checkout-rut').value.trim();
+            const email = document.getElementById('checkout-email').value.trim();
+            const phone = document.getElementById('checkout-phone').value.trim();
+
+            if (!name) return 'Ingresa tu nombre completo.';
+            if (!isValidRut(rut)) return 'El RUT ingresado no es válido (ej: 12345678-9).';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Ingresa un email válido.';
+            if (!phone) return 'Ingresa un teléfono de contacto.';
+            return null;
+        }
+
+        function renderCheckoutSummary() {
+            const listEl = document.getElementById('checkout-summary-items');
+            listEl.innerHTML = Cart.items.map((item) => `
+                <div class="flex items-center justify-between text-sm gap-2">
+                    <span class="text-slate-600 font-semibold truncate">${escapeHtml(item.name)} <span class="text-slate-400">×${item.qty}</span></span>
+                    <span class="text-slate-700 font-bold shrink-0">${formatPrice(item.price * item.qty)}</span>
+                </div>`).join('');
+
+            const deliveryType = getSelectedDeliveryType();
+            const dispatchFee = deliveryType === 'Despacho a Domicilio RM' ? DISPATCH_FEE : 0;
+            const total = Cart.totalPrice() + dispatchFee;
+            const subtotal = total / 1.19;
+            const iva = total - subtotal;
+
+            document.getElementById('checkout-subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('checkout-iva').textContent = formatPrice(iva);
+            document.getElementById('checkout-dispatch-row').classList.toggle('hidden', dispatchFee === 0);
+            document.getElementById('checkout-dispatch-fee').textContent = formatPrice(dispatchFee);
+            document.getElementById('checkout-total').textContent = formatPrice(total);
+        }
+
+        function openCheckout() {
+            if (!Cart.items.length) return;
+            checkoutForm.reset();
+            hideCheckoutErrors();
+            updateDeliveryHighlight();
+            goToCheckoutStep(1);
+            checkoutModal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            refreshIcons();
+        }
+
+        function closeCheckout() {
+            checkoutModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        checkoutNextBtn.addEventListener('click', () => {
+            hideCheckoutErrors();
+            const error = validateCheckoutStep1();
+            if (error) {
+                showCheckoutError(1, error);
+                return;
+            }
+            goToCheckoutStep(2);
+        });
+
+        checkoutBackBtn.addEventListener('click', () => {
+            hideCheckoutErrors();
+            goToCheckoutStep(1);
+        });
+
+        // Evita que Enter dispare el submit mientras se está en el paso 1.
+        checkoutForm.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !checkoutStep1.classList.contains('hidden')) {
+                event.preventDefault();
+                checkoutNextBtn.click();
+            }
+        });
+
+        checkoutForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            hideCheckoutErrors();
+
+            const deliveryType = getSelectedDeliveryType();
+            if (!deliveryType) {
+                showCheckoutError(2, 'Selecciona un tipo de entrega.');
+                return;
+            }
+
+            const payload = {
+                customer: {
+                    name: document.getElementById('checkout-name').value.trim(),
+                    rut: document.getElementById('checkout-rut').value.trim(),
+                    email: document.getElementById('checkout-email').value.trim(),
+                    phone: document.getElementById('checkout-phone').value.trim(),
+                },
+                delivery_type: deliveryType,
+                items: Cart.items.map((item) => ({ product_id: Number(item.id), quantity: item.qty })),
+            };
+
+            checkoutSubmitBtn.disabled = true;
+            checkoutSubmitBtn.textContent = 'Procesando...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    const message = Array.isArray(data.details) ? data.details.join(' ') : (data.error || 'No se pudo procesar el pedido.');
+                    showCheckoutError(2, message);
+                    // Si el problema fue de stock (409), el catálogo/carrito quedaron desactualizados: refrescar.
+                    if (response.status === 409) await loadCatalog();
+                    return;
+                }
+
+                Cart.items = [];
+                Cart.save();
+                renderCart();
+                closeCheckout();
+                showSuccessModal(data.order.id);
+                await loadCatalog();
+            } catch (err) {
+                showCheckoutError(2, `No se pudo conectar con el servidor (${API_BASE_URL}). Verifica que el backend esté corriendo.`);
+            } finally {
+                checkoutSubmitBtn.disabled = false;
+                checkoutSubmitBtn.textContent = 'Confirmar Pedido (Simular Pago)';
+            }
+        });
+
+        document.getElementById('checkout-close-btn').addEventListener('click', closeCheckout);
+        checkoutBackdrop.addEventListener('click', closeCheckout);
+
+        function showSuccessModal(orderId) {
+            document.getElementById('success-title').textContent = `¡Pedido #${orderId} confirmado!`;
+            document.getElementById('success-message').textContent =
+                'Gracias por tu compra. Te contactaremos a la brevedad con los detalles de tu entrega.';
+            successModal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            refreshIcons();
+        }
+
+        function closeSuccessModal() {
+            successModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        document.getElementById('success-close-btn').addEventListener('click', closeSuccessModal);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            if (!successModal.classList.contains('hidden')) {
+                closeSuccessModal();
+            } else if (!checkoutModal.classList.contains('hidden')) {
+                closeCheckout();
+            } else {
+                closeCart();
+            }
         });
 
         // --- Inicialización ---
