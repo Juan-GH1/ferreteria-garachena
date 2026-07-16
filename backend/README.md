@@ -22,7 +22,10 @@ backend/
     │   └── seed.js           # datos de ejemplo (productos + stock)
     ├── controllers/
     │   ├── products.controller.js
-    │   └── orders.controller.js
+    │   ├── orders.controller.js
+    │   └── import.controller.js
+    ├── middleware/
+    │   └── requireAdminKey.js
     └── routes/
         ├── products.routes.js
         └── orders.routes.js
@@ -30,7 +33,9 @@ backend/
 
 ## Modelo de datos
 
-- **products**: `id, name, description, price, category, brand, image_url, created_at`
+- **products**: `id, sku, name, description, price, category, brand, image_url, created_at`
+  — `sku` es el código de Sisgen, único cuando no es `NULL` (los productos
+  cargados a mano no lo tienen).
 - **branches**: `id, name` (Providencia, Vitacura)
 - **inventory**: `product_id, branch_id, stock, updated_at` — clave compuesta
   que permite llevar el stock de cada producto **por sucursal**.
@@ -73,6 +78,7 @@ npm run db:seed   # carga productos y stock de ejemplo (no duplica si ya existen
 | GET    | `/api/products/:id`                     | Detalle de un producto                                   |
 | GET    | `/api/products/:id/stock`               | Stock por sucursal (todas). Filtrar con `?branch=Vitacura` |
 | POST   | `/api/orders`                           | Crea una orden y descuenta stock de forma transaccional  |
+| POST   | `/api/products/import`                  | Carga masiva de catálogo/stock desde .csv/.xlsx/.xls (ver abajo) |
 
 ### Ejemplos
 
@@ -109,6 +115,42 @@ curl -X POST http://localhost:4000/api/orders \
   checkout además se serializan en una cola interna para evitar que dos compras
   simultáneas intercalen sus `BEGIN/COMMIT` sobre la misma conexión.
 - Errores de validación (RUT, email, carrito vacío, tipo de entrega inválido) devuelven `400`.
+
+### Importación masiva de inventario (puente hacia Sisgen)
+
+Mientras se construye la integración en tiempo real con el ERP/CRM (Sisgen),
+`POST /api/products/import` permite sincronizar el catálogo diariamente desde
+un archivo exportado manualmente. Panel de uso: `admin.html` en la raíz del
+repo (arrastrar y soltar o seleccionar archivo).
+
+```bash
+curl -X POST http://localhost:4000/api/products/import \
+  -H "X-Admin-Key: $ADMIN_API_KEY" \
+  -F "file=@inventario_sisgen.csv"
+```
+
+- **Formato esperado**: `.csv`, `.xlsx` o `.xls` con columnas `SKU`, `nombre`,
+  `precio`, `stock_total` (también acepta alias comunes: `codigo`, `producto`,
+  `stock`, etc. — ver `HEADER_ALIASES` en `import.controller.js`).
+- **Upsert por SKU**: si el SKU ya existe, se actualiza `name` y `price` (la
+  `category` original no se toca); si no existe, se crea un producto nuevo con
+  categoría `"Importado Sisgen"`.
+- **`stock_total` unificado → modelo por sucursal**: el archivo de Sisgen no
+  distingue Providencia/Vitacura, pero el resto de la app sí. Para no romper
+  esa parte del sistema (catálogo, carrito, checkout), el stock recibido se
+  reparte en partes iguales entre ambas sucursales (`stock_total / 2`,
+  redondeando el impar hacia Providencia) y **reemplaza** el stock previo de
+  ambas. Es una aproximación transitoria — cuando la integración real con
+  Sisgen entregue el desglose por sucursal, este reparto 50/50 se reemplaza
+  por los valores reales.
+- **Errores por fila no abortan el archivo completo**: una fila con SKU/nombre
+  vacío o precio/stock inválido se omite y se reporta en `errors` (máx. 50 en
+  la respuesta), pero el resto de filas válidas sí se procesan.
+- **Protección básica**: si se define `ADMIN_API_KEY` en `.env`, el endpoint
+  exige el header `X-Admin-Key` con ese valor (`401` si falta o no coincide).
+  Sin la variable definida, el endpoint queda abierto — pensado solo para
+  desarrollo/demo local; en producción hay que definirla o poner el endpoint
+  detrás de autenticación real.
 
 ## Migrar a PostgreSQL en producción
 

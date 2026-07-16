@@ -5,6 +5,7 @@ const BRANCHES = ['Providencia', 'Vitacura'];
 
 const PRODUCTS = [
   {
+    sku: 'GAR-LATEX-GAL',
     name: 'Látex Extra Cubriente Profesional (Galón)',
     description: 'Pintura látex de fórmula propia Garachena, alto poder cubriente y secado rápido.',
     price: 18990,
@@ -14,6 +15,7 @@ const PRODUCTS = [
     stock: { Providencia: 24, Vitacura: 12 },
   },
   {
+    sku: 'GAR-ROD-9POL',
     name: 'Rodillo de Felpa Profesional 9" Antigota',
     description: 'Rodillo de felpa de alta absorción, diseño antigota para acabados prolijos.',
     price: 4490,
@@ -23,6 +25,7 @@ const PRODUCTS = [
     stock: { Providencia: 40, Vitacura: 35 },
   },
   {
+    sku: 'SIPA-TAL-650W',
     name: 'Taladro Percutor Eléctrico Profesional 650W',
     description: 'Taladro percutor de 650W con mandril de 13mm, ideal para uso profesional e intensivo.',
     price: 32990,
@@ -32,6 +35,7 @@ const PRODUCTS = [
     stock: { Providencia: 8, Vitacura: 0 },
   },
   {
+    sku: 'SOUDAL-SELL-300',
     name: 'Sellador Acrílico Multiuso Soudal 300ml',
     description: 'Sellador acrílico de uso general para interior y exterior, pintable.',
     price: 3990,
@@ -61,8 +65,9 @@ async function seed() {
 
   for (const product of PRODUCTS) {
     const result = await db.run(
-      `INSERT INTO products (name, description, price, category, brand, image_url)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO products (sku, name, description, price, category, brand, image_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      product.sku,
       product.name,
       product.description,
       product.price,

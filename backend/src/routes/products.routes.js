@@ -5,6 +5,8 @@ const {
   getProductById,
   getProductStock,
 } = require('../controllers/products.controller');
+const { importProducts, upload } = require('../controllers/import.controller');
+const { requireAdminKey } = require('../middleware/requireAdminKey');
 
 const router = Router();
 
@@ -14,5 +16,16 @@ router.get('/search', searchProducts);
 router.get('/:id/stock', getProductStock);
 router.get('/:id', getProductById);
 router.get('/', getAllProducts);
+
+// Errores de multer (extensión no soportada, archivo demasiado grande) se
+// devuelven como 400 con mensaje claro en vez del 500 genérico por defecto.
+router.post('/import', requireAdminKey, (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message || 'No se pudo procesar el archivo subido.' });
+    }
+    next();
+  });
+}, importProducts);
 
 module.exports = router;

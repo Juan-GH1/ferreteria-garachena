@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS branches (
 
 CREATE TABLE IF NOT EXISTS products (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  sku         TEXT,
   name        TEXT NOT NULL,
   description TEXT,
   price       INTEGER NOT NULL,
@@ -16,6 +17,10 @@ CREATE TABLE IF NOT EXISTS products (
   image_url   TEXT,
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- SKU es el código con el que Sisgen identifica el producto en las cargas
+-- masivas; puede ser NULL para productos cargados manualmente (no vía import).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku ON products(sku) WHERE sku IS NOT NULL;
 
 -- Stock diferenciado por sucursal: una fila por combinación producto/sucursal.
 CREATE TABLE IF NOT EXISTS inventory (
