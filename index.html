@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferretería Garachena - Catálogo Profesional de Pinturas y Herramientas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#1344B1',      // Tu azul real de logo[cite: 2, 3]
+                            blueDark: '#0b2b75',  // Azul de contraste
+                            blueLight: '#eff6ff', // Fondos suaves
+                            dark: '#0f172a',      // Slate oscuro para textos
+                            light: '#f8fafc'      // Gris de fondo limpio
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-brand-light text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="bg-brand-blue text-white text-xs py-2 px-4 text-center font-bold tracking-wide">
+        🚚 Despacho Express en Santiago y Retiro en tienda en Providencia y Vitacura[cite: 1]
+    </div>
+
+    <!-- MAIN HEADER (Inspirado en Ferreteria.cl) -->
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+            
+            <!-- Logo Real Garachena[cite: 2, 3] -->
+            <div class="flex items-center justify-between w-full lg:w-auto">
+                <a href="#" class="flex items-center gap-3">
+                    <svg class="w-10 h-10 text-brand-blue" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="4"/>
+                        <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="1"/>
+                        <path d="M26 20 V80 H38 V20 Z" fill="currentColor"/>
+                        <path d="M44 20 V80 H47 V20 Z" fill="currentColor"/>
+                        <path d="M50 20 H74 C74 20 88 32 88 50 C88 68 74 80 50 80" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                        <path d="M63 53 H88" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    </svg>
+                    <div class="flex flex-col">
+                        <span class="text-xl font-black tracking-tight text-brand-dark leading-none">GARA<span class="text-brand-blue">CHENA</span></span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ferretería Profesional</span>
+                    </div>
+                </a>
+                
+                <!-- Icono de Carrito en Móvil -->
+                <button class="relative p-2 text-slate-600 hover:text-brand-blue lg:hidden">
+                    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center">3</span>
+                </button>
+            </div>
+
+            <!-- Buscador Predictivo de Gran Tamaño (Estilo Ferreteria.cl) -->
+            <div class="relative w-full lg:max-w-xl">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="¿Qué herramienta o pintura buscas hoy?..." 
+                           class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-sm font-medium">
+                    <i data-lucide="search" class="absolute left-4 top-3 text-slate-400 w-5 h-5"></i>
+                </div>
+                <div id="search-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl hidden overflow-hidden z-50">
+                    <ul id="search-results" class="text-sm divide-y divide-slate-100"></ul>
+                </div>
+            </div>
+
+            <!-- Contacto, Sucursales y Carrito Desktop -->
+            <div class="hidden lg:flex items-center gap-6">
+                <div class="flex items-center gap-3 text-xs border-r border-slate-200 pr-6">
+                    <div class="text-right">
+                        <p class="font-bold text-slate-700">Servicio al Cliente</p>
+                        <p class="text-brand-blue font-semibold">Providencia & Vitacura</p>[cite: 1]
+                    </div>
+                    <div class="bg-brand-blueLight p-2 rounded-xl text-brand-blue">
+                        <i data-lucide="phone-call" class="w-5 h-5"></i>
+                    </div>
+                </div>
+
+                <!-- Botón Carrito Desktop -->
+                <button class="relative bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center font-bold border-2 border-white">3</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- SECTION PRINCIPAL: CATÁLOGO DE PRODUCTOS (Inspirado en O'Higgins Herramientas) -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- SIDEBAR DE FILTROS (Inspirado en O'Higgins) -->
+            <aside class="lg:col-span-3 space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                    <h3 class="text-lg font-extrabold text-brand-dark flex items-center gap-2">
+                        <i data-lucide="sliders-horizontal" class="w-5 h-5 text-brand-blue"></i> Filtros de Búsqueda
+                    </h3>
+                    
+                    <!-- Categorías -->
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Categorías</h4>
+                        <ul class="space-y-1 text-sm font-semibold text-slate-600">
+                            <li><a href="#" class="text-brand-blue flex items-center justify-between">Pinturas & Tintometría <span class="bg-blue-50 text-brand-blue px-2 py-0.5 rounded text-xs">12</span></a></li>
+                            <li><a href="#" class="hover:text-brand-blue flex items-center justify-between">Herramientas Manuales <span class="bg-slate-50 text-slate-500 px-2 py-0.5 rounded text-xs">45</span></a></li>
+                            <li><a href="#" class="hover:text-brand-blue flex items-center justify-between">Jardín y Paisajismo <span class="bg-slate-50 text-slate-500 px-2 py-0.5 rounded text-xs">18</span></a></li>[cite: 1]
+                            <li><a href="#" class="hover:text-brand-blue flex items-center justify-between">Aseo y Químicos <span class="bg-slate-50 text-slate-500 px-2 py-0.5 rounded text-xs">24</span></a></li>[cite: 1]
+                        </ul>
+                    </div>
+
+                    <hr class="border-slate-100" />
+
+                    <!-- Marcas Destacadas -->
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Marcas de Calidad</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                                <input type="checkbox" checked class="rounded text-brand-blue focus:ring-brand-blue">
+                                J. Garachena S.A.
+                            </label>
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                                <input type="checkbox" class="rounded text-brand-blue focus:ring-brand-blue">
+                                Sipa Chile
+                            </label>
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                                <input type="checkbox" class="rounded text-brand-blue focus:ring-brand-blue">
+                                Soudal Profesional
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CONTENIDO DE PRODUCTOS (El verdadero foco fotográfico) -->
+            <section class="lg:col-span-9 space-y-6">
+                <!-- Header del listado -->
+                <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                    <p class="text-sm text-slate-500 font-semibold">Mostrando <span class="text-brand-blue">4 productos estrella</span> fotografiados en tienda</p>
+                    <select class="text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-brand-blue">
+                        <option>Ordenar por: Destacados</option>
+                        <option>Precio: Menor a Mayor</option>
+                        <option>Precio: Mayor a Menor</option>
+                    </select>
+                </div>
+
+                <!-- GRILA DE PRODUCTOS (Protagonismo de tus fotos del Drive) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    
+                    <!-- Producto 1: Pintura Garachena -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group justify-between">
+                        <div>
+                            <!-- Contenedor de Imagen con Foto Real -->
+                            <div class="relative bg-slate-50 aspect-square overflow-hidden flex items-center justify-center p-6">
+                                <!-- Reemplazar "src" con la ruta de tu foto del Drive -->
+                                <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&q=80&w=600" 
+                                     alt="Látex Garachena" 
+                                     class="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute top-3 left-3 bg-brand-blue text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md">
+                                    Fórmula Propia
+                                </span>
+                            </div>
+                            <!-- Datos del producto -->
+                            <div class="p-5 space-y-2">
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Garachena Paints</p>
+                                <h3 class="font-extrabold text-slate-800 text-base group-hover:text-brand-blue transition-colors">
+                                    Látex Extra Cubriente Profesional (Galón)
+                                </h3>
+                                <div class="flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
+                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i> Despacho Hoy mismo en RM
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0 flex items-center justify-between gap-4">
+                            <div>
+                                <span class="text-lg font-black text-brand-dark">$18.990</span>
+                                <p class="text-[10px] text-slate-400 font-bold">Incluye IVA</p>
+                            </div>
+                            <button class="bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl transition duration-300" title="Añadir al carro">
+                                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Producto 2: Rodillo Pintor -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group justify-between">
+                        <div>
+                            <!-- Contenedor de Imagen con Foto Real -->
+                            <div class="relative bg-slate-50 aspect-square overflow-hidden flex items-center justify-center p-6">
+                                <!-- Reemplazar "src" con la ruta de tu foto del Drive -->
+                                <img src="https://images.unsplash.com/photo-1605264964521-310849226a81?auto=format&fit=crop&q=80&w=600" 
+                                     alt="Rodillo Profesional" 
+                                     class="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute top-3 left-3 bg-emerald-100 text-emerald-700 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md">
+                                    Retiro en 1 hr
+                                </span>
+                            </div>
+                            <!-- Datos del producto -->
+                            <div class="p-5 space-y-2">
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Herramientas Garachena</p>[cite: 1]
+                                <h3 class="font-extrabold text-slate-800 text-base group-hover:text-brand-blue transition-colors">
+                                    Rodillo de Felpa Profesional 9" Antigota
+                                </h3>
+                                <div class="flex items-center gap-1.5 text-slate-500 text-xs font-semibold">
+                                    <i data-lucide="store" class="w-3.5 h-3.5 text-brand-blue"></i> Disponible en Providencia & Vitacura[cite: 1]
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0 flex items-center justify-between gap-4">
+                            <div>
+                                <span class="text-lg font-black text-brand-dark">$4.490</span>
+                                <p class="text-[10px] text-slate-400 font-bold">Incluye IVA</p>
+                            </div>
+                            <button class="bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl transition duration-300" title="Añadir al carro">
+                                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Producto 3: Taladro Percutor -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group justify-between">
+                        <div>
+                            <!-- Contenedor de Imagen con Foto Real -->
+                            <div class="relative bg-slate-50 aspect-square overflow-hidden flex items-center justify-center p-6">
+                                <!-- Reemplazar "src" con la ruta de tu foto del Drive -->
+                                <img src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&q=80&w=600" 
+                                     alt="Taladro Percutor" 
+                                     class="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute top-3 left-3 bg-red-100 text-red-700 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md">
+                                    Más vendido
+                                </span>
+                            </div>
+                            <!-- Datos del producto -->
+                            <div class="p-5 space-y-2">
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Línea Construcción</p>
+                                <h3 class="font-extrabold text-slate-800 text-base group-hover:text-brand-blue transition-colors">
+                                    Taladro Percutor Eléctrico Profesional 650W
+                                </h3>
+                                <div class="flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
+                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i> Despacho Hoy mismo en RM
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0 flex items-center justify-between gap-4">
+                            <div>
+                                <span class="text-lg font-black text-brand-dark">$32.990</span>
+                                <p class="text-[10px] text-slate-400 font-bold">Incluye IVA</p>
+                            </div>
+                            <button class="bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl transition duration-300" title="Añadir al carro">
+                                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- FOOTER SÓLIDO (Inspirado en O'Higgins) -->
+    <footer class="bg-brand-dark text-white py-12 border-t-4 border-brand-blue mt-auto">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-4">
+                <span class="text-xl font-black text-white">GARA<span class="text-brand-blue">CHENA</span></span>
+                <p class="text-xs text-slate-400">
+                    Tu ferretería familiar y experta en el corazón de Providencia y Vitacura. Especialistas en preparación de pinturas y colorimetría digital en el día.[cite: 1]
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm uppercase tracking-wider mb-4 text-brand-blue">Enlaces Rápidos</h4>
+                <ul class="text-xs space-y-2.5 text-slate-300">
+                    <li>• Catálogo de Pinturas & Herramientas[cite: 1]</li>
+                    <li>• Sucursales y Horarios de Atención[cite: 1]</li>
+                    <li>• Políticas de Despacho Express en Santiago[cite: 1]</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm uppercase tracking-wider mb-4 text-brand-blue">Atención Telefónica</h4>
+                <p class="text-xs text-slate-400 mb-2">Lunes a Viernes de 08:30 a 19:00 hrs.[cite: 1]</p>
+                <span class="text-lg font-bold text-white flex items-center gap-2">
+                    <i data-lucide="phone" class="w-5 h-5 text-brand-blue"></i> +56 2 2222 3344[cite: 1]
+                </span>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 mt-8 pt-6 border-t border-slate-800">
+            © 2026 J. Garachena S.A. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <!-- WHATSAPP ASISTENCIA DE MESÓN -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="https://wa.me/56912345678?text=Hola%20Ferreter%C3%ADa%20Garachena,%20necesito%20cotizar%20un%20producto." target="_blank" 
+           class="bg-[#25D366] hover:bg-[#20ba5a] text-white p-4.5 rounded-full shadow-2xl flex items-center justify-center transition hover:scale-110 duration-300 w-14 h-14">
+            <i data-lucide="message-circle" class="w-6 h-6"></i>
+        </a>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
