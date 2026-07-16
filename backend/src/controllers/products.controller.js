@@ -2,7 +2,7 @@ const { getDb } = require('../db/connection');
 
 /**
  * GET /api/products
- * Lista todos los productos, con stock total agregado (todas las sucursales).
+ * Lista todos los productos junto con su stock desglosado por sucursal.
  * Filtros opcionales por querystring: ?category=&brand=
  */
 async function getAllProducts(req, res, next) {
@@ -14,29 +14,49 @@ async function getAllProducts(req, res, next) {
     const params = [];
 
     if (category) {
-      conditions.push('p.category = ?');
+      conditions.push('category = ?');
       params.push(category);
     }
     if (brand) {
-      conditions.push('p.brand = ?');
+      conditions.push('brand = ?');
       params.push(brand);
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const products = await db.all(
-      `SELECT
-         p.id, p.name, p.description, p.price, p.category, p.brand, p.image_url,
-         COALESCE(SUM(i.stock), 0) AS total_stock
-       FROM products p
-       LEFT JOIN inventory i ON i.product_id = p.id
+      `SELECT id, name, description, price, category, brand, image_url
+       FROM products
        ${whereClause}
-       GROUP BY p.id
-       ORDER BY p.name ASC`,
+       ORDER BY name ASC`,
       ...params
     );
 
-    res.json({ count: products.length, products });
+    const productIds = products.map((p) => p.id);
+    let stockByProduct = {};
+
+    if (productIds.length) {
+      const placeholders = productIds.map(() => '?').join(', ');
+      const stockRows = await db.all(
+        `SELECT i.product_id, b.name AS branch, i.stock
+         FROM inventory i
+         JOIN branches b ON b.id = i.branch_id
+         WHERE i.product_id IN (${placeholders})`,
+        ...productIds
+      );
+
+      stockByProduct = stockRows.reduce((acc, row) => {
+        (acc[row.product_id] ??= {})[row.branch] = row.stock;
+        return acc;
+      }, {});
+    }
+
+    const productsWithStock = products.map((p) => ({
+      ...p,
+      stock: stockByProduct[p.id] || {},
+    }));
+
+    res.json({ count: productsWithStock.length, products: productsWithStock });
   } catch (err) {
     next(err);
   }
