@@ -55,9 +55,9 @@
                 </a>
                 
                 <!-- Icono de Carrito en Móvil -->
-                <button class="relative p-2 text-slate-600 hover:text-brand-blue lg:hidden">
+                <button id="cart-open-btn-mobile" type="button" class="relative p-2 text-slate-600 hover:text-brand-blue lg:hidden" title="Ver carrito">
                     <i data-lucide="shopping-cart" class="w-6 h-6"></i>
-                    <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center">3</span>
+                    <span id="cart-count-mobile" class="hidden absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center">0</span>
                 </button>
             </div>
 
@@ -86,9 +86,9 @@
                 </div>
 
                 <!-- Botón Carrito Desktop -->
-                <button class="relative bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300">
+                <button id="cart-open-btn-desktop" type="button" class="relative bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300" title="Ver carrito">
                     <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                    <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center font-bold border-2 border-white">3</span>
+                    <span id="cart-count-desktop" class="hidden absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center font-bold border-2 border-white">0</span>
                 </button>
             </div>
 
@@ -196,11 +196,61 @@
 
     <!-- WHATSAPP ASISTENCIA DE MESÓN -->
     <div class="fixed bottom-6 right-6 z-50">
-        <a href="https://wa.me/56912345678?text=Hola%20Ferreter%C3%ADa%20Garachena,%20necesito%20cotizar%20un%20producto." target="_blank" 
+        <a href="https://wa.me/56912345678?text=Hola%20Ferreter%C3%ADa%20Garachena,%20necesito%20cotizar%20un%20producto." target="_blank"
            class="bg-[#25D366] hover:bg-[#20ba5a] text-white p-4.5 rounded-full shadow-2xl flex items-center justify-center transition hover:scale-110 duration-300 w-14 h-14">
             <i data-lucide="message-circle" class="w-6 h-6"></i>
         </a>
     </div>
+
+    <!-- CARRITO DE COMPRAS (Slide-out / Drawer) -->
+    <div id="cart-drawer" class="fixed inset-0 z-[100] pointer-events-none">
+        <!-- Fondo oscuro -->
+        <div id="cart-backdrop" class="absolute inset-0 bg-slate-900/50 opacity-0 transition-opacity duration-300"></div>
+
+        <!-- Panel lateral -->
+        <div id="cart-panel"
+             class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="flex items-center justify-between p-5 border-b border-slate-100">
+                <h3 class="text-lg font-extrabold text-brand-dark flex items-center gap-2">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 text-brand-blue"></i> Tu Carrito
+                </h3>
+                <button id="cart-close-btn" type="button" class="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50" title="Cerrar carrito">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto">
+                <div id="cart-empty" class="flex flex-col items-center justify-center h-full text-center px-8 text-slate-400">
+                    <i data-lucide="shopping-cart" class="w-12 h-12 mb-3 text-slate-300"></i>
+                    <p class="font-semibold">Tu carrito está vacío</p>
+                    <p class="text-xs mt-1">Agrega productos desde el catálogo para verlos aquí.</p>
+                </div>
+                <ul id="cart-items" class="divide-y divide-slate-100"></ul>
+            </div>
+
+            <div id="cart-footer" class="hidden border-t border-slate-100 p-5 space-y-2 bg-slate-50">
+                <div class="flex items-center justify-between text-sm text-slate-500 font-semibold">
+                    <span>Subtotal (neto)</span>
+                    <span id="cart-subtotal">$0</span>
+                </div>
+                <div class="flex items-center justify-between text-sm text-slate-500 font-semibold">
+                    <span>IVA (19%)</span>
+                    <span id="cart-iva">$0</span>
+                </div>
+                <div class="flex items-center justify-between text-base font-black text-brand-dark pt-2 border-t border-slate-200">
+                    <span>Total</span>
+                    <span id="cart-total">$0</span>
+                </div>
+                <button id="cart-checkout-btn" type="button"
+                        class="w-full mt-3 bg-brand-blue hover:bg-brand-blueDark text-white font-bold py-3 rounded-xl transition-colors">
+                    Proceder al Pago
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones flotantes (agregado al carrito, validaciones de stock) -->
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] bg-brand-dark text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl max-w-xs text-center"></div>
 
     <script>
         // URL base de la API del backend (ver /backend en el repo).
@@ -241,7 +291,15 @@
                 </div>`;
         }
 
+        function totalStockOf(product) {
+            const stock = product.stock || {};
+            return (stock.Providencia ?? 0) + (stock.Vitacura ?? 0);
+        }
+
         function createProductCard(product) {
+            const totalStock = totalStockOf(product);
+            const outOfStock = totalStock <= 0;
+
             return `
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group justify-between" data-product-id="${product.id}">
                     <div>
@@ -263,7 +321,16 @@
                             <span class="text-lg font-black text-brand-dark">${formatPrice(product.price)}</span>
                             <p class="text-[10px] text-slate-400 font-bold">Incluye IVA</p>
                         </div>
-                        <button class="bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl transition duration-300" title="Añadir al carro">
+                        <button type="button"
+                                data-add-to-cart
+                                data-id="${product.id}"
+                                data-name="${escapeHtml(product.name)}"
+                                data-price="${product.price}"
+                                data-image="${escapeHtml(product.image_url || '')}"
+                                data-stock="${totalStock}"
+                                ${outOfStock ? 'disabled' : ''}
+                                class="bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl transition duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-blue"
+                                title="${outOfStock ? 'Sin stock disponible' : 'Añadir al carro'}">
                             <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -401,8 +468,215 @@
             loadCatalog();
         });
 
+        // --- Notificaciones flotantes ---
+        let toastTimer;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.add('hidden'), 2500);
+        }
+
+        // --- Carrito de compras: estado + persistencia en localStorage ---
+        const CART_STORAGE_KEY = 'garachena_cart';
+
+        const Cart = {
+            items: [],
+
+            load() {
+                try {
+                    const raw = localStorage.getItem(CART_STORAGE_KEY);
+                    this.items = raw ? JSON.parse(raw) : [];
+                } catch (err) {
+                    this.items = [];
+                }
+            },
+
+            save() {
+                localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items));
+            },
+
+            find(id) {
+                return this.items.find((item) => item.id === id);
+            },
+
+            totalQty() {
+                return this.items.reduce((sum, item) => sum + item.qty, 0);
+            },
+
+            totalPrice() {
+                return this.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+            },
+
+            // Regla de negocio: no se puede superar el stock combinado de Providencia + Vitacura.
+            add(product) {
+                if (product.stock <= 0) {
+                    showToast(`"${product.name}" está agotado en ambas sucursales.`);
+                    return;
+                }
+                const existing = this.find(product.id);
+                if (existing) {
+                    if (existing.qty >= existing.stock) {
+                        showToast(`Solo hay ${existing.stock} unidades disponibles de "${existing.name}".`);
+                        return;
+                    }
+                    existing.qty += 1;
+                } else {
+                    this.items.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image_url: product.image_url,
+                        stock: product.stock,
+                        qty: 1,
+                    });
+                }
+                this.save();
+                renderCart();
+                showToast(`"${product.name}" agregado al carrito.`);
+            },
+
+            changeQty(id, delta) {
+                const item = this.find(id);
+                if (!item) return;
+                const nextQty = item.qty + delta;
+                if (nextQty < 1) return;
+                if (nextQty > item.stock) {
+                    showToast(`Solo hay ${item.stock} unidades disponibles de "${item.name}".`);
+                    return;
+                }
+                item.qty = nextQty;
+                this.save();
+                renderCart();
+            },
+
+            remove(id) {
+                this.items = this.items.filter((item) => item.id !== id);
+                this.save();
+                renderCart();
+            },
+        };
+
+        function cartItemRow(item) {
+            const lineTotal = item.price * item.qty;
+            return `
+                <li class="flex gap-3 p-4" data-cart-item-id="${item.id}">
+                    <img src="${escapeHtml(item.image_url || '')}" alt="${escapeHtml(item.name)}"
+                         class="w-16 h-16 object-contain bg-slate-50 rounded-lg border border-slate-100 shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-slate-800 truncate">${escapeHtml(item.name)}</p>
+                        <p class="text-xs text-slate-400 font-semibold">${formatPrice(item.price)} c/u</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg">
+                                <button type="button" data-cart-decrease
+                                        class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-slate-500"
+                                        ${item.qty <= 1 ? 'disabled' : ''} title="Restar unidad">−</button>
+                                <span class="text-sm font-bold w-6 text-center">${item.qty}</span>
+                                <button type="button" data-cart-increase
+                                        class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-slate-500"
+                                        ${item.qty >= item.stock ? 'disabled' : ''} title="Sumar unidad">+</button>
+                            </div>
+                            <button type="button" data-cart-remove class="text-red-500 hover:text-red-700" title="Eliminar producto">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <span class="text-sm font-black text-brand-dark shrink-0">${formatPrice(lineTotal)}</span>
+                </li>`;
+        }
+
+        function updateCartBadge(qty) {
+            [document.getElementById('cart-count-mobile'), document.getElementById('cart-count-desktop')].forEach((badge) => {
+                badge.textContent = qty;
+                badge.classList.toggle('hidden', qty === 0);
+            });
+        }
+
+        function renderCart() {
+            const listEl = document.getElementById('cart-items');
+            const emptyEl = document.getElementById('cart-empty');
+            const footerEl = document.getElementById('cart-footer');
+
+            if (!Cart.items.length) {
+                listEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                footerEl.classList.add('hidden');
+            } else {
+                emptyEl.classList.add('hidden');
+                footerEl.classList.remove('hidden');
+                listEl.innerHTML = Cart.items.map(cartItemRow).join('');
+            }
+
+            const total = Cart.totalPrice();
+            const subtotal = total / 1.19;
+            const iva = total - subtotal;
+
+            document.getElementById('cart-subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('cart-iva').textContent = formatPrice(iva);
+            document.getElementById('cart-total').textContent = formatPrice(total);
+
+            updateCartBadge(Cart.totalQty());
+            refreshIcons();
+        }
+
+        // Delegación de eventos: el botón "Añadir al carro" vive dentro de tarjetas que se
+        // regeneran en cada render, así que se escucha sobre el contenedor fijo del grid.
+        document.getElementById('products-grid').addEventListener('click', (event) => {
+            const button = event.target.closest('[data-add-to-cart]');
+            if (!button || button.disabled) return;
+            Cart.add({
+                id: button.dataset.id,
+                name: button.dataset.name,
+                price: Number(button.dataset.price),
+                image_url: button.dataset.image,
+                stock: Number(button.dataset.stock),
+            });
+        });
+
+        document.getElementById('cart-items').addEventListener('click', (event) => {
+            const row = event.target.closest('[data-cart-item-id]');
+            if (!row) return;
+            const id = row.dataset.cartItemId;
+            if (event.target.closest('[data-cart-increase]')) Cart.changeQty(id, 1);
+            else if (event.target.closest('[data-cart-decrease]')) Cart.changeQty(id, -1);
+            else if (event.target.closest('[data-cart-remove]')) Cart.remove(id);
+        });
+
+        // --- Drawer del carrito ---
+        const cartDrawer = document.getElementById('cart-drawer');
+        const cartBackdrop = document.getElementById('cart-backdrop');
+        const cartPanel = document.getElementById('cart-panel');
+
+        function openCart() {
+            cartDrawer.classList.remove('pointer-events-none');
+            cartBackdrop.classList.remove('opacity-0');
+            cartPanel.classList.remove('translate-x-full');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeCart() {
+            cartDrawer.classList.add('pointer-events-none');
+            cartBackdrop.classList.add('opacity-0');
+            cartPanel.classList.add('translate-x-full');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        document.getElementById('cart-open-btn-mobile').addEventListener('click', openCart);
+        document.getElementById('cart-open-btn-desktop').addEventListener('click', openCart);
+        document.getElementById('cart-close-btn').addEventListener('click', closeCart);
+        cartBackdrop.addEventListener('click', closeCart);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeCart();
+        });
+        document.getElementById('cart-checkout-btn').addEventListener('click', () => {
+            showToast('El pago en línea estará disponible próximamente.');
+        });
+
         // --- Inicialización ---
         refreshIcons();
+        Cart.load();
+        renderCart();
         loadCatalog();
     </script>
 </body>
