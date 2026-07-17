@@ -1,15 +1,26 @@
 import { AnimatePresence } from 'framer-motion';
 import ProductCard from './ProductCard';
 
-export default function ProductGrid({ products, loading, error, isFiltered, onClearFilter, onAdd }) {
+export default function ProductGrid({
+  products,
+  totalCount,
+  loading,
+  error,
+  isFiltered,
+  filtersActive,
+  onClearFilters,
+  onClearFilter,
+  onAdd,
+}) {
   const count = products.length;
+  const countLabel = filtersActive && totalCount > count ? `${count} de ${totalCount} productos` : `${count} producto${count === 1 ? '' : 's'}`;
 
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
         <div className="flex items-center gap-3">
           <p className="text-sm text-slate-500 font-semibold">
-            Mostrando <span className="text-brand-blue">{loading ? '...' : `${count} producto${count === 1 ? '' : 's'}`}</span>
+            Mostrando <span className="text-brand-blue">{loading ? '...' : countLabel}</span>
           </p>
           {isFiltered && (
             <button type="button" onClick={onClearFilter} className="text-xs font-bold text-brand-blue hover:underline">
@@ -30,7 +41,16 @@ export default function ProductGrid({ products, loading, error, isFiltered, onCl
         {!loading && error && <p className="col-span-full text-center text-red-500 font-semibold py-12">{error}</p>}
 
         {!loading && !error && count === 0 && (
-          <p className="col-span-full text-center text-slate-400 font-semibold py-12">No se encontraron productos.</p>
+          <div className="col-span-full text-center py-12 space-y-2">
+            <p className="text-slate-400 font-semibold">
+              {filtersActive ? 'Ningún producto coincide con los filtros seleccionados.' : 'No se encontraron productos.'}
+            </p>
+            {filtersActive && (
+              <button type="button" onClick={onClearFilters} className="text-sm font-bold text-brand-blue hover:underline">
+                Limpiar filtros
+              </button>
+            )}
+          </div>
         )}
 
         {!loading && !error && (

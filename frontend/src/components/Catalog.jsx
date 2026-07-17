@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchProductWithStock, fetchProducts, searchProducts } from '../api';
+import { totalStockOf } from '../utils/format';
 import { useToast } from '../hooks/useToast';
 import { useCart } from '../hooks/useCart';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { EMPTY_FILTERS, hasActiveFilters } from '../utils/filters';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import PaintSimulator from './PaintSimulator';
@@ -31,6 +33,48 @@ export default function Catalog() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
+
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+
+  // Facetas dinámicas: categorías/marcas con conteos y rango de precios,
+  // derivadas del catálogo real (no listas hardcodeadas).
+  const facets = useMemo(() => {
+    const countBy = (key) => {
+      const counts = new Map();
+      for (const product of products) {
+        const value = product[key];
+        if (!value) continue;
+        counts.set(value, (counts.get(value) || 0) + 1);
+      }
+      return [...counts.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name, 'es'));
+    };
+
+    const prices = products.map((p) => p.price);
+    return {
+      categories: countBy('category'),
+      brands: countBy('brand'),
+      priceRange: prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null,
+    };
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      if (filters.categories.length && !filters.categories.includes(product.category)) return false;
+      if (filters.brands.length && !filters.brands.includes(product.brand)) return false;
+
+      const min = filters.minPrice === '' ? null : Number(filters.minPrice);
+      const max = filters.maxPrice === '' ? null : Number(filters.maxPrice);
+      if (min !== null && Number.isFinite(min) && product.price < min) return false;
+      if (max !== null && Number.isFinite(max) && product.price > max) return false;
+
+      const stock = product.stock || {};
+      if (filters.availability === 'in_stock' && totalStockOf(product) <= 0) return false;
+      if (filters.availability === 'providencia' && (stock.Providencia ?? 0) <= 0) return false;
+      if (filters.availability === 'vitacura' && (stock.Vitacura ?? 0) <= 0) return false;
+
+      return true;
+    });
+  }, [products, filters]);
 
   async function loadCatalog() {
     setLoading(true);
@@ -135,14 +179,17 @@ export default function Catalog() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <Sidebar />
+          <Sidebar facets={facets} filters={filters} onFiltersChange={setFilters} />
           <div className="lg:col-span-9 space-y-6">
             <PaintSimulator />
             <ProductGrid
-              products={products}
+              products={filteredProducts}
+              totalCount={products.length}
               loading={loading}
               error={error}
               isFiltered={isFiltered}
+              filtersActive={hasActiveFilters(filters)}
+              onClearFilters={() => setFilters(EMPTY_FILTERS)}
               onClearFilter={handleClearFilter}
               onAdd={cart.add}
             />
