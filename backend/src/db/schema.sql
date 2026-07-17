@@ -35,15 +35,22 @@ CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 
 CREATE TABLE IF NOT EXISTS orders (
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  customer_name  TEXT NOT NULL,
-  rut            TEXT NOT NULL,
-  email          TEXT NOT NULL,
-  phone          TEXT NOT NULL,
-  delivery_type  TEXT NOT NULL,
-  total_amount   INTEGER NOT NULL,
-  status         TEXT NOT NULL DEFAULT 'confirmed',
-  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+  id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_name       TEXT NOT NULL,
+  rut                 TEXT NOT NULL,
+  email               TEXT NOT NULL,
+  phone               TEXT NOT NULL,
+  delivery_type       TEXT NOT NULL,
+  total_amount        INTEGER NOT NULL,
+  status              TEXT NOT NULL DEFAULT 'confirmed',
+  -- Documento tributario: 'boleta' (default) o 'factura'. Los campos billing_*
+  -- solo se llenan cuando document_type = 'factura'.
+  document_type       TEXT NOT NULL DEFAULT 'boleta',
+  billing_rut         TEXT,
+  billing_razon_social TEXT,
+  billing_giro        TEXT,
+  billing_address     TEXT,
+  created_at          TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- Detalle de cada orden. branch_deducted registra de qué sucursal se descontó

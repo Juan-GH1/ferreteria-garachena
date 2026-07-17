@@ -3,25 +3,38 @@ const path = require('path');
 const { getDb } = require('./connection');
 
 /**
- * Migración defensiva para bases de datos creadas antes de que existiera la
- * columna "sku" (usada por la importación masiva). SQLite no soporta
- * "ALTER TABLE ... ADD COLUMN IF NOT EXISTS", así que se verifica a mano;
- * si la tabla es nueva, schema.sql ya la crea con la columna incluida.
+ * Migraciones defensivas para bases creadas con esquemas anteriores. SQLite
+ * no soporta "ALTER TABLE ... ADD COLUMN IF NOT EXISTS", así que se verifica
+ * a mano; en tablas nuevas, schema.sql ya incluye estas columnas.
  */
-async function migrateAddSkuColumn(db) {
-  const table = await db.get("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'products'");
+async function addMissingColumns(db, tableName, columns) {
+  const table = await db.get("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?", tableName);
   if (!table) return;
 
-  const columns = await db.all('PRAGMA table_info(products)');
-  const hasSku = columns.some((col) => col.name === 'sku');
-  if (!hasSku) {
-    await db.exec('ALTER TABLE products ADD COLUMN sku TEXT');
+  const existing = await db.all(`PRAGMA table_info(${tableName})`);
+  const existingNames = new Set(existing.map((col) => col.name));
+
+  for (const [name, definition] of Object.entries(columns)) {
+    if (!existingNames.has(name)) {
+      await db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${name} ${definition}`);
+    }
   }
+}
+
+async function runMigrations(db) {
+  await addMissingColumns(db, 'products', { sku: 'TEXT' });
+  await addMissingColumns(db, 'orders', {
+    document_type: "TEXT NOT NULL DEFAULT 'boleta'",
+    billing_rut: 'TEXT',
+    billing_razon_social: 'TEXT',
+    billing_giro: 'TEXT',
+    billing_address: 'TEXT',
+  });
 }
 
 async function initDb() {
   const db = await getDb();
-  await migrateAddSkuColumn(db);
+  await runMigrations(db);
   const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   await db.exec(schema);
   return db;

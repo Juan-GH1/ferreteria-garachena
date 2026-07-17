@@ -13,7 +13,18 @@ const DELIVERY_OPTIONS = [
   { value: 'Despacho a Domicilio RM', label: 'Despacho a Domicilio RM', priceLabel: '+$3.990', priceClass: 'text-slate-500' },
 ];
 
-const EMPTY_FORM = { name: '', rut: '', email: '', phone: '', deliveryType: DELIVERY_OPTIONS[0].value };
+const EMPTY_FORM = {
+  name: '',
+  rut: '',
+  email: '',
+  phone: '',
+  deliveryType: DELIVERY_OPTIONS[0].value,
+  documentType: 'boleta',
+  billingRut: '',
+  billingRazonSocial: '',
+  billingGiro: '',
+  billingAddress: '',
+};
 
 export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onStockConflict }) {
   const [step, setStep] = useState(1);
@@ -39,6 +50,13 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
     if (!isValidRut(form.rut)) return 'El RUT ingresado no es válido (ej: 12345678-9).';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return 'Ingresa un email válido.';
     if (!form.phone.trim()) return 'Ingresa un teléfono de contacto.';
+
+    if (form.documentType === 'factura') {
+      if (!isValidRut(form.billingRut)) return 'El RUT de facturación no es válido (ej: 76543210-3).';
+      if (!form.billingRazonSocial.trim()) return 'Ingresa la razón social de la empresa.';
+      if (!form.billingGiro.trim()) return 'Ingresa el giro comercial.';
+      if (!form.billingAddress.trim()) return 'Ingresa la dirección de facturación.';
+    }
     return null;
   }
 
@@ -62,9 +80,21 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
     setError('');
     setSubmitting(true);
 
+    const billing =
+      form.documentType === 'factura'
+        ? {
+            document_type: 'factura',
+            rut: form.billingRut.trim(),
+            razon_social: form.billingRazonSocial.trim(),
+            giro: form.billingGiro.trim(),
+            address: form.billingAddress.trim(),
+          }
+        : { document_type: 'boleta' };
+
     const payload = {
       customer: { name: form.name.trim(), rut: form.rut.trim(), email: form.email.trim(), phone: form.phone.trim() },
       delivery_type: form.deliveryType,
+      billing,
       items: cartItems.map((item) => ({ product_id: Number(item.id), quantity: item.qty })),
     };
 
@@ -91,8 +121,8 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[120]">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-slate-900/60" />
+        <div className="fixed inset-0 z-[120] overflow-y-auto">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="fixed inset-0 bg-slate-900/60" />
 
           <div className="relative min-h-full flex items-center justify-center p-4">
             <motion.div
@@ -186,6 +216,86 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                         ))}
                       </div>
                     </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Documento tributario</label>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        {[
+                          { value: 'boleta', label: 'Boleta' },
+                          { value: 'factura', label: 'Factura' },
+                        ].map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setForm({ ...form, documentType: option.value })}
+                            className={`py-2.5 rounded-xl border-2 text-sm font-bold transition-colors ${
+                              form.documentType === option.value
+                                ? 'border-brand-blue bg-brand-blueLight text-brand-blue'
+                                : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <AnimatePresence initial={false}>
+                        {form.documentType === 'factura' && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: 'easeInOut' }}
+                            className="overflow-hidden"
+                          >
+                            <div className="space-y-3 pt-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">RUT empresa</label>
+                                  <input
+                                    type="text"
+                                    value={form.billingRut}
+                                    onChange={(e) => setForm({ ...form, billingRut: e.target.value })}
+                                    placeholder="76543210-3"
+                                    className="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Giro comercial</label>
+                                  <input
+                                    type="text"
+                                    value={form.billingGiro}
+                                    onChange={(e) => setForm({ ...form, billingGiro: e.target.value })}
+                                    placeholder="Construcción"
+                                    className="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Razón social</label>
+                                <input
+                                  type="text"
+                                  value={form.billingRazonSocial}
+                                  onChange={(e) => setForm({ ...form, billingRazonSocial: e.target.value })}
+                                  placeholder="Empresa SpA"
+                                  className="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Dirección de facturación</label>
+                                <input
+                                  type="text"
+                                  value={form.billingAddress}
+                                  onChange={(e) => setForm({ ...form, billingAddress: e.target.value })}
+                                  placeholder="Av. Providencia 1234, Of. 56"
+                                  className="w-full mt-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"
+                                />
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -198,6 +308,12 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                           <span className="text-slate-700 font-bold shrink-0">{formatPrice(item.price * item.qty)}</span>
                         </div>
                       ))}
+                    </div>
+                    <div className="flex items-center justify-between text-sm bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                      <span className="text-slate-500 font-semibold">Documento</span>
+                      <span className="font-bold text-slate-700">
+                        {form.documentType === 'factura' ? `Factura · ${form.billingRazonSocial.trim()}` : 'Boleta'}
+                      </span>
                     </div>
                     <div className="border-t border-slate-100 pt-3 space-y-1.5">
                       <div className="flex items-center justify-between text-sm text-slate-500 font-semibold">

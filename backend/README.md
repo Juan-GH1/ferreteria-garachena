@@ -39,7 +39,9 @@ backend/
 - **branches**: `id, name` (Providencia, Vitacura)
 - **inventory**: `product_id, branch_id, stock, updated_at` — clave compuesta
   que permite llevar el stock de cada producto **por sucursal**.
-- **orders**: `id, customer_name, rut, email, phone, delivery_type, total_amount, status, created_at`
+- **orders**: `id, customer_name, rut, email, phone, delivery_type, total_amount, status, document_type, billing_rut, billing_razon_social, billing_giro, billing_address, created_at`
+  — `document_type` es `boleta` (default) o `factura`; los campos `billing_*`
+  solo se llenan para facturas.
 - **order_items**: `id, order_id, product_id, quantity, price, branch_deducted` —
   registra de qué sucursal se descontó el stock de cada línea.
 
@@ -129,6 +131,11 @@ FTS5 con índice de trigramas.
   checkout además se serializan en una cola interna para evitar que dos compras
   simultáneas intercalen sus `BEGIN/COMMIT` sobre la misma conexión.
 - Errores de validación (RUT, email, carrito vacío, tipo de entrega inválido) devuelven `400`.
+- **Boleta o factura:** el payload acepta un objeto `billing` opcional. Sin él
+  (o con `{"document_type": "boleta"}`) la orden se emite como boleta. Con
+  `{"document_type": "factura", "rut", "razon_social", "giro", "address"}` los
+  cuatro campos son obligatorios y el RUT de la empresa se valida con el mismo
+  algoritmo módulo 11 que el RUT del cliente.
 
 ### Importación masiva de inventario (puente hacia Sisgen)
 

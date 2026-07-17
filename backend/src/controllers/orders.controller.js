@@ -31,6 +31,8 @@ function isValidRut(rutRaw) {
   return dv === expectedDv;
 }
 
+const DOCUMENT_TYPES = ['boleta', 'factura'];
+
 function validateOrderPayload(body) {
   const errors = [];
   const customer = body.customer || {};
@@ -40,6 +42,17 @@ function validateOrderPayload(body) {
   if (!customer.email || !EMAIL_REGEX.test(customer.email.trim())) errors.push('El email no es válido.');
   if (!customer.phone || !customer.phone.trim()) errors.push('El teléfono es obligatorio.');
   if (!DELIVERY_TYPES.includes(body.delivery_type)) errors.push('El tipo de entrega no es válido.');
+
+  // billing es opcional: sin él, la orden se emite como boleta.
+  const billing = body.billing || { document_type: 'boleta' };
+  if (!DOCUMENT_TYPES.includes(billing.document_type)) {
+    errors.push('El tipo de documento debe ser "boleta" o "factura".');
+  } else if (billing.document_type === 'factura') {
+    if (!isValidRut(billing.rut)) errors.push('El RUT de facturación no es válido (ej: 76543210-K).');
+    if (!billing.razon_social || !billing.razon_social.trim()) errors.push('La razón social es obligatoria para factura.');
+    if (!billing.giro || !billing.giro.trim()) errors.push('El giro comercial es obligatorio para factura.');
+    if (!billing.address || !billing.address.trim()) errors.push('La dirección de facturación es obligatoria para factura.');
+  }
 
   if (!Array.isArray(body.items) || body.items.length === 0) {
     errors.push('El carrito está vacío.');
@@ -86,7 +99,7 @@ function runExclusive(task) {
  * checkouts concurrentes compiten por las mismas unidades; si el UPDATE no
  * afecta filas, se aborta toda la transacción con 409.
  */
-async function placeOrder({ customer, deliveryType, items }) {
+async function placeOrder({ customer, deliveryType, items, billing }) {
   const db = await getDb();
 
   try {
@@ -149,15 +162,24 @@ async function placeOrder({ customer, deliveryType, items }) {
     const dispatchFee = deliveryType === 'Despacho a Domicilio RM' ? DISPATCH_FEE : 0;
     const totalAmount = itemsTotal + dispatchFee;
 
+    const isFactura = billing.document_type === 'factura';
     const orderResult = await db.run(
-      `INSERT INTO orders (customer_name, rut, email, phone, delivery_type, total_amount, status)
-       VALUES (?, ?, ?, ?, ?, ?, 'confirmed')`,
+      `INSERT INTO orders (
+         customer_name, rut, email, phone, delivery_type, total_amount, status,
+         document_type, billing_rut, billing_razon_social, billing_giro, billing_address
+       )
+       VALUES (?, ?, ?, ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?)`,
       customer.name.trim(),
       customer.rut.trim(),
       customer.email.trim(),
       customer.phone.trim(),
       deliveryType,
-      totalAmount
+      totalAmount,
+      billing.document_type,
+      isFactura ? billing.rut.trim() : null,
+      isFactura ? billing.razon_social.trim() : null,
+      isFactura ? billing.giro.trim() : null,
+      isFactura ? billing.address.trim() : null
     );
     const orderId = orderResult.lastID;
 
@@ -179,6 +201,7 @@ async function placeOrder({ customer, deliveryType, items }) {
       id: orderId,
       status: 'confirmed',
       delivery_type: deliveryType,
+      document_type: billing.document_type,
       total_amount: totalAmount,
       items: resolvedItems,
     };
@@ -200,9 +223,10 @@ async function createOrder(req, res, next) {
   }
 
   const { customer, delivery_type: deliveryType, items } = req.body;
+  const billing = req.body.billing || { document_type: 'boleta' };
 
   try {
-    const order = await runExclusive(() => placeOrder({ customer, deliveryType, items }));
+    const order = await runExclusive(() => placeOrder({ customer, deliveryType, items, billing }));
     res.status(201).json({ order });
   } catch (err) {
     if (err instanceof OrderError) {
