@@ -22,7 +22,7 @@ async function addMissingColumns(db, tableName, columns) {
 }
 
 async function runMigrations(db) {
-  await addMissingColumns(db, 'products', { sku: 'TEXT' });
+  await addMissingColumns(db, 'products', { sku: 'TEXT', internal_code: 'TEXT' });
   await addMissingColumns(db, 'orders', {
     document_type: "TEXT NOT NULL DEFAULT 'boleta'",
     billing_rut: 'TEXT',

@@ -16,6 +16,8 @@ import CartDrawer from './CartDrawer';
 import CheckoutModal from './CheckoutModal';
 import SuccessModal from './SuccessModal';
 
+const PAGE_SIZE = 48;
+
 export default function Catalog() {
   const showToast = useToast();
   const cart = useCart(showToast);
@@ -83,6 +85,16 @@ export default function Catalog() {
       return true;
     });
   }, [products, filters]);
+
+  // Con el catálogo real (1000+ productos), renderizar todas las tarjetas
+  // animadas de una vez congela el navegador. Se renderizan por tandas y el
+  // contador se resetea al cambiar los filtros.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filters, products]);
+
+  const visibleProducts = useMemo(() => filteredProducts.slice(0, visibleCount), [filteredProducts, visibleCount]);
 
   async function loadCatalog() {
     setLoading(true);
@@ -191,7 +203,8 @@ export default function Catalog() {
           <div className="lg:col-span-9 space-y-6">
             <PaintSimulator />
             <ProductGrid
-              products={filteredProducts}
+              products={visibleProducts}
+              matchCount={filteredProducts.length}
               totalCount={products.length}
               loading={loading}
               error={error}
@@ -199,6 +212,7 @@ export default function Catalog() {
               filtersActive={hasActiveFilters(filters)}
               onClearFilters={() => setFilters(EMPTY_FILTERS)}
               onClearFilter={handleClearFilter}
+              onShowMore={() => setVisibleCount((count) => count + PAGE_SIZE)}
               onAdd={cart.add}
             />
           </div>

@@ -7,15 +7,16 @@ CREATE TABLE IF NOT EXISTS branches (
 );
 
 CREATE TABLE IF NOT EXISTS products (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  sku         TEXT,
-  name        TEXT NOT NULL,
-  description TEXT,
-  price       INTEGER NOT NULL,
-  category    TEXT NOT NULL,
-  brand       TEXT,
-  image_url   TEXT,
-  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  sku           TEXT,
+  internal_code TEXT,
+  name          TEXT NOT NULL,
+  description   TEXT,
+  price         INTEGER NOT NULL,
+  category      TEXT NOT NULL,
+  brand         TEXT,
+  image_url     TEXT,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- SKU es el código con el que Sisgen identifica el producto en las cargas

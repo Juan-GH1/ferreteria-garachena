@@ -3,6 +3,7 @@ import ProductCard from './ProductCard';
 
 export default function ProductGrid({
   products,
+  matchCount,
   totalCount,
   loading,
   error,
@@ -10,10 +11,14 @@ export default function ProductGrid({
   filtersActive,
   onClearFilters,
   onClearFilter,
+  onShowMore,
   onAdd,
 }) {
-  const count = products.length;
-  const countLabel = filtersActive && totalCount > count ? `${count} de ${totalCount} productos` : `${count} producto${count === 1 ? '' : 's'}`;
+  const countLabel =
+    filtersActive && totalCount > matchCount
+      ? `${matchCount} de ${totalCount} productos`
+      : `${matchCount} producto${matchCount === 1 ? '' : 's'}`;
+  const hasMore = products.length < matchCount;
 
   return (
     <section className="space-y-6">
@@ -40,7 +45,7 @@ export default function ProductGrid({
 
         {!loading && error && <p className="col-span-full text-center text-red-500 font-semibold py-12">{error}</p>}
 
-        {!loading && !error && count === 0 && (
+        {!loading && !error && matchCount === 0 && (
           <div className="col-span-full text-center py-12 space-y-2">
             <p className="text-slate-400 font-semibold">
               {filtersActive ? 'Ningún producto coincide con los filtros seleccionados.' : 'No se encontraron productos.'}
@@ -61,6 +66,18 @@ export default function ProductGrid({
           </AnimatePresence>
         )}
       </div>
+
+      {!loading && !error && hasMore && (
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={onShowMore}
+            className="px-6 py-3 rounded-xl border-2 border-brand-blue text-brand-blue font-bold text-sm hover:bg-brand-blueLight transition-colors"
+          >
+            Mostrar más ({matchCount - products.length} restantes)
+          </button>
+        </div>
+      )}
     </section>
   );
 }
