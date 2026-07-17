@@ -11,7 +11,13 @@ function CartItemRow({ item, onIncrease, onDecrease, onRemove }) {
       exit={{ opacity: 0, height: 0 }}
       className="flex gap-3 p-4 overflow-hidden"
     >
-      <img src={item.image_url || ''} alt={item.name} className="w-16 h-16 object-contain bg-slate-50 rounded-lg border border-slate-100 shrink-0" />
+      <img
+        src={item.image_url || ''}
+        alt={item.name}
+        loading="lazy"
+        decoding="async"
+        className="w-16 h-16 object-contain bg-slate-50 rounded-lg border border-slate-100 shrink-0"
+      />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-slate-800 truncate">{item.name}</p>
         <p className="text-xs text-slate-400 font-semibold">{formatPrice(item.price)} c/u</p>

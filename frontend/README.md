@@ -68,10 +68,26 @@ npm run preview   # sirve el build localmente para probarlo
 
 ## Rutas
 
-| Ruta      | Página                                                        |
-|-----------|----------------------------------------------------------------|
-| `/`       | Catálogo, buscador, carrito y checkout (cliente final)         |
-| `/admin`  | Importación masiva de inventario vía CSV/XLSX (uso interno)    |
+| Ruta             | Página                                                        |
+|------------------|----------------------------------------------------------------|
+| `/`              | Catálogo, buscador, filtros, carrito y checkout (cliente final)|
+| `/producto/:id`  | Ficha de producto con meta-tags dinámicos (SEO/OG)             |
+| `/admin`         | Importación masiva de inventario vía CSV/XLSX (uso interno)    |
+
+## SEO y rendimiento
+
+- Las fichas de producto (`/producto/:id`) fijan título, meta description y
+  OpenGraph (`og:title/description/image/url`, `og:type=product`) vía el hook
+  `useMeta`; el catálogo restaura los suyos al navegar de vuelta.
+- **Limitación conocida de SPA**: los meta-tags se inyectan client-side.
+  Google los indexa (ejecuta JS), pero la mayoría de los scrapers de redes
+  sociales no — al compartir un link de producto en redes se verán los OG por
+  defecto de `index.html`. Para OG por producto en redes se necesita SSR o
+  prerender (p. ej. migrar a un framework con SSR o prerenderizar rutas en el
+  build); se dejó fuera de alcance a propósito.
+- Las imágenes de la grilla y del carrito usan `loading="lazy"` +
+  `decoding="async"`; la imagen principal de la ficha es eager con
+  `fetchPriority="high"` por ser el LCP de esa página.
 
 ## Notas de la migración
 

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Store } from 'lucide-react';
 import { formatPrice, stockTone, totalStockOf } from '../utils/format';
@@ -41,16 +42,21 @@ export default function ProductCard({ product, onAdd }) {
       className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col group justify-between"
     >
       <div>
-        <div className="relative bg-slate-50 aspect-square overflow-hidden flex items-center justify-center p-6">
+        <Link to={`/producto/${product.id}`} className="block relative bg-slate-50 aspect-square overflow-hidden flex items-center justify-center p-6">
+          {/* Lazy loading: las tarjetas fuera del viewport no descargan su imagen */}
           <img
             src={product.image_url || ''}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-300"
           />
-        </div>
+        </Link>
         <div className="p-5 space-y-2">
           <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">{product.brand || ''}</p>
-          <h3 className="font-extrabold text-slate-800 text-base group-hover:text-brand-blue transition-colors">{product.name}</h3>
+          <h3 className="font-extrabold text-slate-800 text-base group-hover:text-brand-blue transition-colors">
+            <Link to={`/producto/${product.id}`}>{product.name}</Link>
+          </h3>
           <StockLine stock={product.stock} />
         </div>
       </div>

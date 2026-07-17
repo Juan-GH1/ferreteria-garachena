@@ -4,6 +4,7 @@ import { totalStockOf } from '../utils/format';
 import { useToast } from '../hooks/useToast';
 import { useCart } from '../hooks/useCart';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useMeta } from '../hooks/useMeta';
 import { EMPTY_FILTERS, hasActiveFilters } from '../utils/filters';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -18,6 +19,13 @@ import SuccessModal from './SuccessModal';
 export default function Catalog() {
   const showToast = useToast();
   const cart = useCart(showToast);
+
+  useMeta({
+    title: 'Ferretería Garachena - Catálogo Profesional de Pinturas y Herramientas',
+    description:
+      'Ferretería Garachena: pinturas con tintometría digital, herramientas y despacho express en Santiago. Retiro en tienda en Providencia y Vitacura.',
+    url: typeof window !== 'undefined' ? window.location.origin : undefined,
+  });
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
