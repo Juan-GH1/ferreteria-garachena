@@ -23,7 +23,7 @@ export async function searchProducts(q) {
   const response = await fetch(`${API_BASE_URL}/products/search?q=${encodeURIComponent(q)}`);
   if (!response.ok) throw new Error('Error en la búsqueda');
   const data = await response.json();
-  return data.products;
+  return { products: data.products, approximate: Boolean(data.approximate) };
 }
 
 export async function fetchProductWithStock(id) {

@@ -74,7 +74,7 @@ npm run db:seed   # carga productos y stock de ejemplo (no duplica si ya existen
 |--------|-----------------------------------------|----------------------------------------------------------|
 | GET    | `/api/health`                           | Health check                                             |
 | GET    | `/api/products`                         | Todos los productos (filtros opcionales `?category=` `?brand=`) |
-| GET    | `/api/products/search?q=texto`          | Autocompletado para el buscador (máx. 8 resultados)      |
+| GET    | `/api/products/search?q=texto`          | Autocompletado difuso: tolera typos y tildes (máx. 8 resultados) |
 | GET    | `/api/products/:id`                     | Detalle de un producto                                   |
 | GET    | `/api/products/:id/stock`               | Stock por sucursal (todas). Filtrar con `?branch=Vitacura` |
 | POST   | `/api/orders`                           | Crea una orden y descuenta stock de forma transaccional  |
@@ -96,6 +96,20 @@ curl -X POST http://localhost:4000/api/orders \
         "items": [{"product_id": 1, "quantity": 2}]
       }'
 ```
+
+### Búsqueda difusa
+
+`GET /api/products/search?q=` normaliza tildes y mayúsculas ("latex" →
+"Látex") y aplica coincidencia difusa por token con distancia de Levenshtein
+acotada (1 error para tokens de ≤4 letras, 2 para más largos), así "taldro"
+encuentra "Taladro". El ranking prioriza prefijo exacto > substring en nombre >
+substring en marca/categoría > coincidencia difusa. La respuesta incluye
+`approximate: true` cuando todos los resultados provienen de coincidencia
+difusa (probable typo), lo que el frontend usa para mostrar el hint de
+"resultados aproximados". Implementado en `src/utils/textSearch.js` sin
+dependencias; el scoring corre en JS sobre el catálogo completo por request,
+suficiente hasta unos ~20-30k productos — pasado ese punto, migrar a SQLite
+FTS5 con índice de trigramas.
 
 ### Checkout: reglas de negocio y manejo de errores
 

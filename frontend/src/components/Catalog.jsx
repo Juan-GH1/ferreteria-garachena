@@ -24,6 +24,7 @@ export default function Catalog() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [searchApproximate, setSearchApproximate] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const debouncedQuery = useDebouncedValue(searchQuery, 250);
 
@@ -72,9 +73,10 @@ export default function Catalog() {
     }
     let cancelled = false;
     searchProducts(query)
-      .then((results) => {
+      .then(({ products: results, approximate }) => {
         if (cancelled) return;
         setSearchResults(results);
+        setSearchApproximate(approximate);
         setSearchOpen(true);
       })
       .catch(() => {
@@ -125,6 +127,7 @@ export default function Catalog() {
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         searchResults={searchResults}
+        searchApproximate={searchApproximate}
         searchOpen={searchOpen}
         onSelectResult={handleSelectSearchResult}
         onCloseSearch={() => setSearchOpen(false)}

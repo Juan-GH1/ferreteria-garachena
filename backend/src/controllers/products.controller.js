@@ -1,4 +1,5 @@
 const { getDb } = require('../db/connection');
+const { fuzzySearch } = require('../utils/textSearch');
 
 /**
  * GET /api/products
@@ -64,35 +65,24 @@ async function getAllProducts(req, res, next) {
 
 /**
  * GET /api/products/search?q=texto
- * Autocompletado: coincidencias por nombre, categoría o marca.
- * Prioriza resultados que empiezan con el término buscado.
+ * Autocompletado predictivo y tolerante a typos: normaliza tildes/mayúsculas
+ * y aplica coincidencia difusa por token (Levenshtein acotado) sobre nombre,
+ * marca y categoría. `approximate: true` en la respuesta indica que todos los
+ * resultados vienen de coincidencia difusa (probable error de tipeo).
  */
 async function searchProducts(req, res, next) {
   try {
     const q = (req.query.q || '').trim();
     if (!q) {
-      return res.json({ count: 0, products: [] });
+      return res.json({ count: 0, products: [], approximate: false });
     }
 
     const db = await getDb();
-    const like = `%${q}%`;
-    const startsWith = `${q}%`;
+    const allProducts = await db.all('SELECT id, name, category, brand, price, image_url FROM products');
 
-    const products = await db.all(
-      `SELECT id, name, category, brand, price, image_url
-       FROM products
-       WHERE name LIKE ? OR category LIKE ? OR brand LIKE ?
-       ORDER BY
-         CASE WHEN name LIKE ? THEN 0 ELSE 1 END,
-         name ASC
-       LIMIT 8`,
-      like,
-      like,
-      like,
-      startsWith
-    );
+    const { results, approximate } = fuzzySearch(allProducts, q, 8);
 
-    res.json({ count: products.length, products });
+    res.json({ count: results.length, products: results, approximate });
   } catch (err) {
     next(err);
   }

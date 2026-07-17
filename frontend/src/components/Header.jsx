@@ -21,7 +21,7 @@ function CartBadge({ count, className }) {
   return <span className={className}>{count}</span>;
 }
 
-export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQueryChange, searchResults, searchOpen, onSelectResult, onCloseSearch }) {
+export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQueryChange, searchResults, searchApproximate, searchOpen, onSelectResult, onCloseSearch }) {
   const searchBoxRef = useRef(null);
 
   useEffect(() => {
@@ -75,6 +75,11 @@ export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQue
           </div>
           {searchOpen && (
             <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
+              {searchApproximate && searchResults.length > 0 && (
+                <p className="px-3 py-1.5 text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-100">
+                  Mostrando resultados aproximados para “{searchQuery.trim()}”
+                </p>
+              )}
               <ul className="text-sm divide-y divide-slate-100">
                 {searchResults.length ? (
                   searchResults.map((product) => (
