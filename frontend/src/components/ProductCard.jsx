@@ -30,7 +30,14 @@ export default function ProductCard({ product, onAdd }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.25 }}
+      whileHover={{ scale: 1.03, y: -5 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{
+        opacity: { duration: 0.25 },
+        // spring solo en los gestos: la entrada/salida mantiene su fade corto
+        scale: { type: 'spring', stiffness: 300, damping: 20 },
+        y: { type: 'spring', stiffness: 300, damping: 20 },
+      }}
       className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col group justify-between"
     >
       <div>
@@ -54,7 +61,9 @@ export default function ProductCard({ product, onAdd }) {
         </div>
         <motion.button
           type="button"
+          whileHover={outOfStock ? undefined : { scale: 1.08 }}
           whileTap={{ scale: outOfStock ? 1 : 0.9 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
           disabled={outOfStock}
           onClick={() => onAdd({ ...product, stock })}
           title={outOfStock ? 'Sin stock disponible' : 'Añadir al carro'}

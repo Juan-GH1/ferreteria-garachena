@@ -5,6 +5,7 @@ import { useCart } from '../hooks/useCart';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import PaintSimulator from './PaintSimulator';
 import ProductGrid from './ProductGrid';
 import Footer from './Footer';
 import WhatsappButton from './WhatsappButton';
@@ -132,14 +133,17 @@ export default function Catalog() {
       <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <Sidebar />
-          <ProductGrid
-            products={products}
-            loading={loading}
-            error={error}
-            isFiltered={isFiltered}
-            onClearFilter={handleClearFilter}
-            onAdd={cart.add}
-          />
+          <div className="lg:col-span-9 space-y-6">
+            <PaintSimulator />
+            <ProductGrid
+              products={products}
+              loading={loading}
+              error={error}
+              isFiltered={isFiltered}
+              onClearFilter={handleClearFilter}
+              onAdd={cart.add}
+            />
+          </div>
         </div>
       </main>
 

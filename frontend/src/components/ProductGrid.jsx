@@ -5,7 +5,7 @@ export default function ProductGrid({ products, loading, error, isFiltered, onCl
   const count = products.length;
 
   return (
-    <section className="lg:col-span-9 space-y-6">
+    <section className="space-y-6">
       <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
         <div className="flex items-center gap-3">
           <p className="text-sm text-slate-500 font-semibold">
