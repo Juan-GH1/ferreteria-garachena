@@ -35,7 +35,7 @@ export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQue
   }, [onCloseSearch]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row items-center justify-between gap-4">
         <div className="flex items-center justify-between w-full lg:w-auto">
           <Link to="/" className="flex items-center gap-3">

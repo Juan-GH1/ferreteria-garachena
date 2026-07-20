@@ -1,15 +1,39 @@
 @import "tailwindcss";
 
-/* Paleta de marca Garachena (antes definida en tailwind.config del CDN de index.html) */
+/*
+ * Tokens de diseño Garachena.
+ * - brand-blue se mantiene como color primario de acciones (azul del logo).
+ * - navy: azul marino profundo para superficies oscuras (header/footer/hero).
+ * - accent: ámbar cálido para acentos puntuales (badges, focos de atención).
+ * - Sombras multinivel: soft (reposo), card (tarjetas), lift (hover/flotantes).
+ */
 @theme {
   --color-brand-blue: #1344b1;
   --color-brand-blueDark: #0b2b75;
   --color-brand-blueLight: #eff6ff;
   --color-brand-dark: #0f172a;
   --color-brand-light: #f8fafc;
+
+  --color-navy-800: #16294f;
+  --color-navy-900: #0b1f3f;
+  --color-navy-950: #061530;
+
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+
+  --shadow-soft: 0 8px 30px rgb(0 0 0 / 0.04);
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px rgb(15 23 42 / 0.06);
+  --shadow-lift: 0 2px 6px rgb(15 23 42 / 0.07), 0 18px 44px rgb(15 23 42 / 0.12);
 }
 
 body {
   margin: 0;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Los montos siempre con dígitos tabulares para que columnas de precios alineen */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

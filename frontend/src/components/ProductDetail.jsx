@@ -1,23 +1,50 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ShoppingCart, Store, Truck } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Truck } from 'lucide-react';
 import { fetchProductWithStock } from '../api';
-import { formatPrice, stockTone, totalStockOf } from '../utils/format';
+import { formatPrice, totalStockOf } from '../utils/format';
 import { useCart } from '../hooks/useCart';
 import { useMeta } from '../hooks/useMeta';
 import { useToast } from '../hooks/useToast';
 import Footer from './Footer';
 import WhatsappButton from './WhatsappButton';
 
-function BranchStockRow({ branch, qty }) {
-  const tone = stockTone(qty);
+function StockBadge({ branch, qty }) {
+  const tone =
+    qty <= 0
+      ? { pill: 'bg-rose-50 text-rose-600 ring-rose-100', dot: 'bg-rose-400', label: 'Agotado' }
+      : qty <= 5
+        ? { pill: 'bg-amber-50 text-amber-700 ring-amber-100', dot: 'bg-amber-400', label: `${qty} unidades` }
+        : { pill: 'bg-emerald-50 text-emerald-700 ring-emerald-100', dot: 'bg-emerald-400', label: `${qty} unidades` };
+
   return (
-    <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
-      <span className="flex items-center gap-2 text-sm font-semibold text-slate-600">
-        <Store className="w-4 h-4 text-brand-blue" /> {branch}
+    <div className="flex items-center justify-between py-2.5">
+      <span className="text-sm font-semibold text-slate-600">{branch}</span>
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${tone.pill}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} />
+        {tone.label}
       </span>
-      <span className={`text-sm ${tone.className}`}>{tone.label}</span>
+    </div>
+  );
+}
+
+/** Skeleton elegante mientras llega el producto: misma estructura, pulso suave. */
+function DetailSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start animate-pulse" data-testid="detail-skeleton">
+      <div className="bg-slate-100 rounded-3xl aspect-square" />
+      <div className="space-y-5 pt-2">
+        <div className="h-3 w-24 bg-slate-100 rounded-full" />
+        <div className="space-y-2">
+          <div className="h-7 w-4/5 bg-slate-100 rounded-lg" />
+          <div className="h-7 w-3/5 bg-slate-100 rounded-lg" />
+        </div>
+        <div className="h-4 w-32 bg-slate-100 rounded-full" />
+        <div className="h-10 w-40 bg-slate-100 rounded-lg" />
+        <div className="h-24 w-full bg-slate-100 rounded-2xl" />
+        <div className="h-13 w-full bg-slate-100 rounded-2xl" />
+      </div>
     </div>
   );
 }
@@ -35,11 +62,13 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setImageLoaded(false);
     fetchProductWithStock(id)
       .then((data) => {
         if (!cancelled) setProduct(data);
@@ -70,7 +99,7 @@ export default function ProductDetail() {
 
   return (
     <div className="bg-brand-light text-slate-800 font-sans antialiased flex flex-col min-h-screen">
-      <header className="bg-white border-b border-slate-100 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-sm font-bold text-brand-blue hover:underline">
             <ArrowLeft className="w-4 h-4" /> Volver al catálogo
@@ -87,7 +116,7 @@ export default function ProductDetail() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-10 flex-grow w-full">
-        {loading && <p className="text-center text-slate-400 font-semibold py-16">Cargando producto...</p>}
+        {loading && <DetailSkeleton />}
 
         {!loading && error && (
           <div className="text-center py-16 space-y-3">
@@ -105,48 +134,55 @@ export default function ProductDetail() {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start"
           >
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm aspect-square flex items-center justify-center p-10">
+            <div className="relative bg-gradient-to-b from-white to-slate-50 rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] aspect-square flex items-center justify-center p-10 overflow-hidden">
+              {/* Skeleton de la imagen hasta que termina de descargar */}
+              {!imageLoaded && <div className="absolute inset-6 rounded-2xl bg-slate-100 animate-pulse" aria-hidden />}
               {/* Imagen principal: eager + fetchpriority alta, es el LCP de la página */}
-              <img
+              <motion.img
                 src={product.image_url || ''}
                 alt={product.name}
                 fetchPriority="high"
                 decoding="async"
-                className="object-contain max-h-full max-w-full"
+                onLoad={() => setImageLoaded(true)}
+                initial={false}
+                animate={{ opacity: imageLoaded ? 1 : 0, scale: imageLoaded ? 1 : 0.97 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="relative object-contain max-h-full max-w-full drop-shadow-sm"
               />
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">{product.brand || ''}</p>
-                <h1 className="text-2xl font-black text-brand-dark mt-1">{product.name}</h1>
-                <p className="text-sm text-slate-500 font-semibold mt-1">{product.category}</p>
+                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.16em]">{product.brand || 'Garachena'}</p>
+                <h1 className="text-[26px] leading-tight font-black tracking-tight text-slate-900 mt-1.5">{product.name}</h1>
+                <p className="text-sm text-slate-400 font-medium mt-1">{product.category}</p>
               </div>
 
-              {product.description && <p className="text-sm text-slate-600 leading-relaxed">{product.description}</p>}
+              {product.description && <p className="text-[15px] text-slate-600 leading-relaxed">{product.description}</p>}
 
-              <div>
-                <span className="text-3xl font-black text-brand-dark">{formatPrice(product.price)}</span>
-                <p className="text-xs text-slate-400 font-bold">Incluye IVA</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-[34px] font-black tracking-tight text-slate-900 tabular-nums">{formatPrice(product.price)}</span>
+                <span className="text-xs text-slate-400 font-semibold">IVA incluido</span>
               </div>
 
-              <div className="space-y-2">
-                <BranchStockRow branch="Providencia" qty={product.stock?.Providencia ?? 0} />
-                <BranchStockRow branch="Vitacura" qty={product.stock?.Vitacura ?? 0} />
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-soft px-5 divide-y divide-slate-100">
+                <StockBadge branch="Sucursal Providencia" qty={product.stock?.Providencia ?? 0} />
+                <StockBadge branch="Sucursal Vitacura" qty={product.stock?.Vitacura ?? 0} />
               </div>
 
-              <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
-                <Truck className="w-4 h-4" /> Despacho Express en Santiago · Retiro en tienda gratis
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-500">
+                <Truck className="w-4 h-4 text-brand-blue" />
+                Despacho Express en Santiago · Retiro en tienda gratis
               </div>
 
               <motion.button
                 type="button"
-                whileHover={outOfStock ? undefined : { scale: 1.02 }}
+                whileHover={outOfStock ? undefined : { scale: 1.02, y: -1 }}
                 whileTap={{ scale: outOfStock ? 1 : 0.97 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 disabled={outOfStock}
                 onClick={() => cart.add({ ...product, stock })}
-                className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-blue"
+                className="w-full flex items-center justify-center gap-2.5 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-4 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {outOfStock ? 'Sin stock disponible' : 'Añadir al carro'}

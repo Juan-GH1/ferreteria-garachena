@@ -22,7 +22,7 @@ export default function Sidebar({ facets, filters, onFiltersChange }) {
 
   return (
     <aside className="lg:col-span-3 space-y-6">
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-card space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-extrabold text-brand-dark flex items-center gap-2">
             <SlidersHorizontal className="w-5 h-5 text-brand-blue" /> Filtros
