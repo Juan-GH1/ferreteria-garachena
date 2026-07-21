@@ -173,6 +173,33 @@ curl -X POST http://localhost:4000/api/products/import \
   desarrollo/demo local; en producción hay que definirla o poner el endpoint
   detrás de autenticación real.
 
+## Catálogo real de pinturas y poblado de stock
+
+Además del seed de demo (`npm run db:seed`, 4 productos curados), el
+repositorio incluye dos scripts para levantar un catálogo realista de punta a
+punta a partir del Excel de Sisgen:
+
+```bash
+npm run db:import:pinturas   # scripts/import-familia-pinturas.js
+npm run db:seed:stock        # scripts/seedStock.js
+```
+
+- **`db:import:pinturas`**: lee `data/FAMILIA_PINTURAS.xlsx` (columnas
+  `DESCRIPCIO`, `PRECIODEVE`, `CODIGODEBA`, `CODIGOPROD`) y hace upsert por
+  SKU (`CODIGODEBA`, con fallback `PROD-<CODIGOPROD>` para filas sin código de
+  barra) contra la tabla `products`, con categoría `"Pinturas"` y una foto
+  genérica de relleno para los productos nuevos. Requiere el servidor
+  arrancado al menos una vez antes (para que existan las sucursales base).
+- **`db:seed:stock`**: los productos recién importados quedan en 0 stock (el
+  Excel no trae cantidades reales). Este script les asigna stock aleatorio
+  pero coherente —entre 5 y 50 unidades por producto— repartido entre
+  Providencia y Vitacura en una proporción también aleatoria (30%-70%).
+  Alcance: solo productos con `internal_code` (es decir, importados desde
+  Sisgen); no toca los 4 productos demo, que ya tienen stock curado a mano.
+
+Orden recomendado desde cero: `npm start` (crea tablas + sucursales + seed
+demo) → `npm run db:import:pinturas` → `npm run db:seed:stock`.
+
 ## Migrar a PostgreSQL en producción
 
 El esquema en `src/db/schema.sql` usa tipos estándar compatibles con

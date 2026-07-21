@@ -29,14 +29,40 @@ frontend/
     └── components/
         ├── Catalog.jsx         # página de la tienda (equivalente al index.html original)
         ├── Header.jsx           # logo, buscador con autocompletado, botones de carrito
+        ├── Hero.jsx              # hero comercial de la Home (CTAs a catálogo/herramientas)
+        ├── CategoryGrid.jsx      # accesos rápidos a las 4 categorías destacadas
         ├── Sidebar.jsx
         ├── ProductGrid.jsx / ProductCard.jsx
+        ├── ProductImage.jsx      # foto real o ilustración vectorial de fallback (ver abajo)
+        ├── PaintSimulator.jsx    # simulador de color, conectado a productos reales del catálogo
         ├── Footer.jsx / WhatsappButton.jsx
         ├── CartDrawer.jsx       # panel lateral animado
         ├── CheckoutModal.jsx    # formulario de 2 pasos + confirmación
         ├── SuccessModal.jsx
         └── AdminPanel.jsx       # equivalente al admin.html original, en /admin
+
+tests/e2e/                       # suite E2E con @playwright/test (ver más abajo)
+playwright.config.js
 ```
+
+### ProductImage: fallback vectorial inteligente
+
+Los 1013 productos importados desde Sisgen (`backend/scripts/import-familia-pinturas.js`)
+comparten una misma foto genérica de relleno. `ProductImage.jsx` detecta esa
+URL compartida y, en vez de repetirla mil veces, genera una ilustración
+determinística por categoría (mismo SKU/nombre → mismo resultado siempre):
+un tarro de pintura con el tono derivado del producto para "Pinturas", o un
+ícono de la categoría sobre fondo pastel con la marca Garachena de fondo para
+el resto. Se usa en la grilla, la ficha de producto y el carrito.
+
+### PaintSimulator: del color a la venta
+
+Cada muestra del simulador (`PAINT_COLORS` en `PaintSimulator.jsx`) tiene un
+`searchTerm` curado que se resuelve contra `/api/products/search` al montar
+el componente, enlazando la muestra con un producto real del catálogo. El CTA
+bajo el selector cambia según el match: "Comprar este color en 1 Galón" si el
+producto es un formato en galón, o "Ver ficha del producto" en caso
+contrario, y navega directo a `/producto/:id`.
 
 ## Instalación y desarrollo
 
@@ -88,6 +114,26 @@ npm run preview   # sirve el build localmente para probarlo
 - Las imágenes de la grilla y del carrito usan `loading="lazy"` +
   `decoding="async"`; la imagen principal de la ficha es eager con
   `fetchPriority="high"` por ser el LCP de esa página.
+
+## Pruebas E2E (Playwright)
+
+```bash
+npm run test:e2e   # requiere backend (:4000) y frontend (:5173) — playwright.config.js los levanta si no están corriendo
+```
+
+`tests/e2e/full-purchase-flow.spec.js` simula el recorrido completo de un
+cliente sobre el catálogo real (no mocks): Home → filtrar por categoría
+"Pinturas" → probar el Simulador de Pintura → buscar con un typo ("taldro")
+y confirmar que la búsqueda difusa resuelve "Taladro" → agregar al carrito →
+checkout con Factura y RUT válido (dígito verificador módulo 11) → confirmar
+el pedido y verificar el modal de éxito.
+
+`playwright.config.js` apunta `launchOptions.executablePath` al Chromium ya
+instalado en el entorno (`/opt/pw-browsers/chromium`) en vez de descargar uno
+nuevo, y declara ambos servidores (`backend` vía `npm start`, `frontend` vía
+`vite --port 5173`) en `webServer` con `reuseExistingServer: true`, así el
+comando funciona tanto en CI como reutilizando servidores ya levantados en
+desarrollo.
 
 ## Notas de la migración
 
