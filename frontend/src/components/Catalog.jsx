@@ -238,7 +238,7 @@ export default function Catalog() {
       </main>
 
       <section className="max-w-7xl mx-auto px-4 pb-16">
-        <PaintSimulator />
+        <PaintSimulator cart={cart} />
       </section>
 
       <Footer />

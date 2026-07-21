@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
+import { FileDown, Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import { formatPrice } from '../utils/format';
+import { pickCrossSellAnchor } from '../utils/crossSell';
+import B2BQuoteModal from './B2BQuoteModal';
+import CrossSellRecommendations from './CrossSellRecommendations';
 import ProductImage from './ProductImage';
 
 function CartItemRow({ item, onIncrease, onDecrease, onRemove }) {
@@ -72,87 +76,106 @@ export default function CartDrawer({ open, onClose, cart, onCheckout }) {
   const { items, totalPrice, changeQty, remove } = cart;
   const subtotal = totalPrice / 1.19;
   const iva = totalPrice - subtotal;
+  const crossSellAnchor = pickCrossSellAnchor(items);
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   return (
-    <AnimatePresence>
-      {open && (
-        <div className="fixed inset-0 z-[100]">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-navy-950/40 backdrop-blur-[2px]"
-          />
+    <>
+      <AnimatePresence>
+        {open && (
+          <div className="fixed inset-0 z-[100]">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+              className="absolute inset-0 bg-navy-950/40 backdrop-blur-[2px]"
+            />
 
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
-            className="absolute right-0 top-0 h-full w-full max-w-md bg-white/90 backdrop-blur-md shadow-lift flex flex-col"
-          >
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-              <h3 className="text-[17px] font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                <ShoppingCart className="w-5 h-5 text-brand-blue" /> Tu Carrito
-              </h3>
-              <button
-                type="button"
-                onClick={onClose}
-                title="Cerrar carrito"
-                className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6">
-              {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center px-8 text-slate-400">
-                  <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
-                    <ShoppingCart className="w-7 h-7 text-slate-300" />
-                  </div>
-                  <p className="font-bold tracking-tight text-slate-500">Tu carrito está vacío</p>
-                  <p className="text-xs mt-1.5 leading-relaxed">Agrega productos desde el catálogo para verlos aquí.</p>
-                </div>
-              ) : (
-                <ul className="divide-y divide-slate-100">
-                  <AnimatePresence>
-                    {items.map((item) => (
-                      <CartItemRow
-                        key={item.id}
-                        item={item}
-                        onIncrease={(id) => changeQty(id, 1)}
-                        onDecrease={(id) => changeQty(id, -1)}
-                        onRemove={remove}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </ul>
-              )}
-            </div>
-
-            {items.length > 0 && (
-              <div className="border-t border-slate-100 px-6 py-5 space-y-2 bg-white/70 backdrop-blur-md">
-                <TotalRow label="Subtotal (neto)" value={formatPrice(subtotal)} />
-                <TotalRow label="IVA (19%)" value={formatPrice(iva)} />
-                <div className="border-t border-slate-100" />
-                <TotalRow label="Total" value={formatPrice(totalPrice)} emphasis />
-                <motion.button
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
+              className="absolute right-0 top-0 h-full w-full max-w-md bg-white/90 backdrop-blur-md shadow-lift flex flex-col"
+            >
+              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+                <h3 className="text-[17px] font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                  <ShoppingCart className="w-5 h-5 text-brand-blue" /> Tu Carrito
+                </h3>
+                <button
                   type="button"
-                  whileHover={{ scale: 1.01, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  onClick={onCheckout}
-                  className="w-full mt-3 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3.5 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300"
+                  onClick={onClose}
+                  title="Cerrar carrito"
+                  className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
                 >
-                  Proceder al Pago
-                </motion.button>
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            )}
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+
+              <div className="flex-1 overflow-y-auto px-6">
+                {items.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center px-8 text-slate-400">
+                    <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+                      <ShoppingCart className="w-7 h-7 text-slate-300" />
+                    </div>
+                    <p className="font-bold tracking-tight text-slate-500">Tu carrito está vacío</p>
+                    <p className="text-xs mt-1.5 leading-relaxed">Agrega productos desde el catálogo para verlos aquí.</p>
+                  </div>
+                ) : (
+                  <ul className="divide-y divide-slate-100">
+                    <AnimatePresence>
+                      {items.map((item) => (
+                        <CartItemRow
+                          key={item.id}
+                          item={item}
+                          onIncrease={(id) => changeQty(id, 1)}
+                          onDecrease={(id) => changeQty(id, -1)}
+                          onRemove={remove}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </ul>
+                )}
+
+                {crossSellAnchor && (
+                  <div className="py-4">
+                    <CrossSellRecommendations product={crossSellAnchor} onAdd={cart.add} excludeIds={items.map((item) => item.id)} />
+                  </div>
+                )}
+              </div>
+
+              {items.length > 0 && (
+                <div className="border-t border-slate-100 px-6 py-5 space-y-2 bg-white/70 backdrop-blur-md">
+                  <TotalRow label="Subtotal (neto)" value={formatPrice(subtotal)} />
+                  <TotalRow label="IVA (19%)" value={formatPrice(iva)} />
+                  <div className="border-t border-slate-100" />
+                  <TotalRow label="Total" value={formatPrice(totalPrice)} emphasis />
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.01, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    onClick={onCheckout}
+                    className="w-full mt-3 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3.5 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300"
+                  >
+                    Proceder al Pago
+                  </motion.button>
+                  <button
+                    type="button"
+                    onClick={() => setQuoteOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-navy-900 border border-slate-200 hover:border-navy-900 py-3 rounded-2xl transition-colors"
+                  >
+                    <FileDown className="w-4 h-4" /> Descargar Cotización B2B (PDF)
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <B2BQuoteModal open={quoteOpen} onClose={() => setQuoteOpen(false)} items={items} />
+    </>
   );
 }

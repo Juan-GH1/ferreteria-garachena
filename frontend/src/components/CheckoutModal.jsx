@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { FileDown, X } from 'lucide-react';
 import { createOrder } from '../api';
 import { formatPrice } from '../utils/format';
 import { isValidRut } from '../utils/rut';
+import B2BQuoteModal from './B2BQuoteModal';
 
 const DISPATCH_FEE = 3990;
 
@@ -31,6 +32,7 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   const itemsTotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const dispatchFee = form.deliveryType === 'Despacho a Domicilio RM' ? DISPATCH_FEE : 0;
@@ -335,6 +337,13 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                         <span>{formatPrice(total)}</span>
                       </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setQuoteOpen(true)}
+                      className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-brand-dark border border-slate-200 hover:border-brand-dark py-2.5 rounded-xl transition-colors"
+                    >
+                      <FileDown className="w-4 h-4" /> Descargar Cotización B2B (PDF)
+                    </button>
                   </div>
                 )}
 
@@ -377,6 +386,8 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
           </div>
         </div>
       )}
+
+      <B2BQuoteModal open={quoteOpen} onClose={() => setQuoteOpen(false)} items={cartItems} />
     </AnimatePresence>
   );
 }

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Paintbrush, Store, Truck } from 'lucide-react';
+import { ArrowRight, Calculator, Paintbrush, Store, Truck } from 'lucide-react';
 import { searchProducts } from '../api';
 import { formatPrice } from '../utils/format';
+import { GALON_REGEX } from '../utils/paint';
+import PaintCalculatorModal from './PaintCalculatorModal';
 
 // Paleta de fórmulas propias Garachena (tintometría digital en el día).
 // searchTerm conecta cada muestra con un producto real del catálogo
@@ -18,7 +20,6 @@ const PAINT_COLORS = [
 ];
 
 const SPRING = { type: 'spring', stiffness: 300, damping: 20 };
-const GALON_REGEX = /GLN|GAL[OÓ]N/i;
 
 function PaintSwatch({ color, selected, onSelect }) {
   return (
@@ -149,15 +150,30 @@ function BuyLinkedProductButton({ product }) {
   );
 }
 
+/** Abre la Calculadora de Pintura para la muestra seleccionada. */
+function CalculatorButton({ disabled, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="mt-2.5 w-full flex items-center justify-center gap-2 text-[12px] font-bold text-brand-blue hover:bg-brand-blueLight py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      <Calculator className="w-3.5 h-3.5" /> ¿Cuánta pintura necesito? Calcula por m²
+    </button>
+  );
+}
+
 /**
  * Bento del hero: habitación de muestra (pieza grande), panel de muestras y
  * dos tiles de propuesta de valor. Cada muestra está conectada a un producto
  * real del catálogo (buscado por keyword al montar), con un CTA que lleva
  * directo a su ficha para comprar.
  */
-export default function PaintSimulator() {
+export default function PaintSimulator({ cart }) {
   const [selected, setSelected] = useState(PAINT_COLORS[0]);
   const [linkedProducts, setLinkedProducts] = useState({});
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -197,6 +213,7 @@ export default function PaintSimulator() {
         <AnimatePresence mode="wait">
           <motion.div key={selected.hex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
             <BuyLinkedProductButton product={linkedProducts[selected.hex]} />
+            <CalculatorButton disabled={!linkedProducts[selected.hex]} onClick={() => setCalculatorOpen(true)} />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -205,6 +222,15 @@ export default function PaintSimulator() {
         <FeatureTile icon={Truck} title="Despacho Express" caption="Hoy mismo en Santiago" />
         <FeatureTile icon={Store} title="Retiro en tienda" caption="Providencia y Vitacura" />
       </div>
+
+      {cart && (
+        <PaintCalculatorModal
+          open={calculatorOpen}
+          onClose={() => setCalculatorOpen(false)}
+          product={linkedProducts[selected.hex]}
+          onAdd={cart.addMany}
+        />
+      )}
     </section>
   );
 }

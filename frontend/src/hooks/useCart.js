@@ -60,6 +60,56 @@ export function useCart(showToast) {
     [items, showToast]
   );
 
+  /**
+   * Agrega una cantidad específica de una sola vez (ej. "3 galones" desde la
+   * Calculadora de Pintura). No usar `add()` en un loop para esto: como
+   * `add()` cierra sobre el `items` de su render, llamarlo N veces seguidas
+   * en el mismo ciclo de evento solo agrega 1 unidad (cada llamada parte del
+   * mismo `items` desactualizado). Esta función calcula la cantidad final en
+   * un solo `setItems`.
+   */
+  const addMany = useCallback(
+    (product, quantity) => {
+      if (!quantity || quantity <= 0) return;
+      if (product.stock <= 0) {
+        showToast(`"${product.name}" está agotado en ambas sucursales.`);
+        return;
+      }
+
+      const existing = items.find((item) => item.id === product.id);
+      const currentQty = existing ? existing.qty : 0;
+      const desiredQty = Math.min(currentQty + quantity, product.stock);
+      const added = desiredQty - currentQty;
+
+      if (added <= 0) {
+        showToast(`Solo hay ${product.stock} unidades disponibles de "${product.name}".`);
+        return;
+      }
+
+      if (existing) {
+        setItems(items.map((item) => (item.id === product.id ? { ...item, qty: desiredQty } : item)));
+      } else {
+        setItems([
+          ...items,
+          {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image_url: product.image_url,
+            category: product.category,
+            sku: product.sku,
+            stock: product.stock,
+            qty: desiredQty,
+          },
+        ]);
+      }
+
+      const suffix = added < quantity ? ` (stock disponible: ${product.stock})` : '';
+      showToast(`${added} unidad${added === 1 ? '' : 'es'} de "${product.name}" agregada${added === 1 ? '' : 's'} al carrito${suffix}.`);
+    },
+    [items, showToast]
+  );
+
   const changeQty = useCallback(
     (id, delta) => {
       const item = items.find((i) => i.id === id);
@@ -79,5 +129,5 @@ export function useCart(showToast) {
 
   const clear = useCallback(() => setItems([]), []);
 
-  return { items, totalQty, totalPrice, add, changeQty, remove, clear };
+  return { items, totalQty, totalPrice, add, addMany, changeQty, remove, clear };
 }

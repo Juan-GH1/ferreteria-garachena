@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FlaskConical, HardHat, Package, Wrench } from 'lucide-react';
+import { isPaintCategory } from '../utils/paint';
 
 // Los 1013 productos importados de Sisgen comparten esta misma foto genérica
 // (asignada por scripts/import-familia-pinturas.js a falta de fotos reales).
@@ -13,10 +14,6 @@ const TOOL_ICON_BY_CATEGORY = {
   'Línea Construcción': HardHat,
   'Aseo y Químicos': FlaskConical,
 };
-
-function isPaintCategory(category) {
-  return category === 'Pinturas' || category === 'Pinturas & Tintometría';
-}
 
 function hashSeed(value) {
   let hash = 0;

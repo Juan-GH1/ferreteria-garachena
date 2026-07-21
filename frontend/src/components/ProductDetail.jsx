@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ShoppingCart, Truck } from 'lucide-react';
+import { ArrowLeft, Calculator, ShoppingCart, Truck } from 'lucide-react';
 import { fetchProductWithStock } from '../api';
 import { formatPrice, totalStockOf } from '../utils/format';
+import { isPaintCategory } from '../utils/paint';
 import { useCart } from '../hooks/useCart';
 import { useMeta } from '../hooks/useMeta';
 import { useToast } from '../hooks/useToast';
+import CrossSellRecommendations from './CrossSellRecommendations';
 import Footer from './Footer';
+import PaintCalculatorModal from './PaintCalculatorModal';
 import ProductImage from './ProductImage';
 import WhatsappButton from './WhatsappButton';
 
@@ -63,6 +66,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -178,6 +182,18 @@ export default function ProductDetail() {
                 <ShoppingCart className="w-5 h-5" />
                 {outOfStock ? 'Sin stock disponible' : 'Añadir al carro'}
               </motion.button>
+
+              {isPaintCategory(product.category) && (
+                <button
+                  type="button"
+                  onClick={() => setCalculatorOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-brand-blue bg-brand-blueLight hover:bg-blue-100 py-3 rounded-xl transition-colors"
+                >
+                  <Calculator className="w-4 h-4" /> ¿Cuánta pintura necesito? Calcula por m²
+                </button>
+              )}
+
+              <CrossSellRecommendations product={product} onAdd={cart.add} excludeIds={[product.id]} />
             </div>
           </motion.div>
         )}
@@ -185,6 +201,8 @@ export default function ProductDetail() {
 
       <Footer />
       <WhatsappButton />
+
+      <PaintCalculatorModal open={calculatorOpen} onClose={() => setCalculatorOpen(false)} product={product} onAdd={cart.addMany} />
     </div>
   );
 }

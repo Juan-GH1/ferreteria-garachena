@@ -39,6 +39,9 @@ frontend/
         ├── CartDrawer.jsx       # panel lateral animado
         ├── CheckoutModal.jsx    # formulario de 2 pasos + confirmación
         ├── SuccessModal.jsx
+        ├── PaintCalculatorModal.jsx     # calculadora de superficie -> galones (ver abajo)
+        ├── CrossSellRecommendations.jsx # venta cruzada inteligente (ver abajo)
+        ├── B2BQuoteModal.jsx            # datos del cliente para la cotización B2B (ver abajo)
         └── admin/                # Panel de Administración, ver sección propia más abajo
             ├── AdminLayout.jsx / AdminSidebar.jsx / AdminLogin.jsx
             ├── AdminDashboard.jsx
@@ -68,6 +71,65 @@ el componente, enlazando la muestra con un producto real del catálogo. El CTA
 bajo el selector cambia según el match: "Comprar este color en 1 Galón" si el
 producto es un formato en galón, o "Ver ficha del producto" en caso
 contrario, y navega directo a `/producto/:id`.
+
+### Calculadora de Pintura por Superficie
+
+`PaintCalculatorModal.jsx` calcula cuántos galones se necesitan a partir de
+ancho, alto, número de puertas/ventanas a descontar y manos de pintura
+(`utils/paint.js#computeGallonsNeeded`): superficie neta = (ancho × alto) −
+(aberturas × 1,8 m² promedio cada una), multiplicada por las manos, dividida
+por un rendimiento de ~37,5 m²/galón (punto medio del rango 35-40) y
+redondeada siempre hacia arriba. Accesible desde:
+
+- **La ficha de un producto de Pinturas** (`ProductDetail.jsx`): el botón
+  usa el producto de la página.
+- **El Simulador de Pintura** (`PaintSimulator.jsx`): usa el producto
+  vinculado a la muestra de color seleccionada.
+
+En ambos casos el botón "Añadir X Galones al Carrito" resuelve el stock
+vigente justo antes de agregar (`fetchProductWithStock`) y usa
+`useCart#addMany`, una variante de `add()` pensada para agregar una cantidad
+específica de una sola vez — `add()` no sirve para esto porque llamarlo N
+veces seguidas en el mismo ciclo de evento solo agrega 1 unidad (cada llamada
+parte del mismo `items` desactualizado de React).
+
+### Venta cruzada inteligente (Cross-Selling)
+
+`CrossSellRecommendations.jsx` recomienda accesorios reales del catálogo
+según la categoría del producto (`utils/crossSell.js`):
+
+| Producto ancla                          | Accesorios recomendados                                              |
+|------------------------------------------|------------------------------------------------------------------------|
+| Pintura                                   | Rodillo Antigota, Brocha 2", Cinta Masking 24mm, Plástico Protector    |
+| Herramienta eléctrica (categoría "Línea Construcción" o nombre con ELÉCTRIC/TALADRO/SIERRA/etc.) | Set de Brocas, Extensión Eléctrica 10m, Lentes de Seguridad |
+
+Cada accesorio se resuelve contra `/api/products/search` por keyword al
+montar el componente; **si un rubro no existe todavía en el catálogo
+importado de Sisgen (p. ej. cinta masking, extensión eléctrica o lentes de
+seguridad — el import es casi enteramente de pinturas), esa tarjeta
+simplemente no se muestra** en vez de inventar un producto o dejar una
+tarjeta vacía. Se usa en `ProductDetail.jsx` (basado en el producto de la
+ficha) y en `CartDrawer.jsx` (basado en el primer ítem del carrito para el
+que exista una receta, `pickCrossSellAnchor`). El botón "Añadir +$X.XXX"
+resuelve el stock vigente al hacer clic antes de agregar al carrito.
+
+### Cotización B2B en PDF
+
+Pensado para maestros y constructoras que compran con el carrito ya armado.
+`B2BQuoteModal.jsx` pide datos opcionales del cliente (nombre/empresa, RUT,
+email — no se validan, son solo para personalizar el documento) y
+`utils/generateQuotePdf.js` arma el PDF con `jspdf` + `jspdf-autotable`:
+encabezado con los datos de la empresa y número/fecha de cotización, datos
+del cliente, tabla de productos (SKU/descripción/cantidad/precio
+unitario/subtotal) y el desglose Subtotal Neto/IVA (19%)/Total General. El
+botón **"Descargar Cotización B2B (PDF)"** está en `CartDrawer.jsx` y en el
+paso 2 (resumen) de `CheckoutModal.jsx`.
+
+`jspdf`/`jspdf-autotable` arrastran dependencias opcionales pesadas
+(html2canvas, DOMPurify — ~380 kB minificados) que no hacen falta para este
+uso. `generateQuotePdf.js` las importa con `import()` dinámico, así ese peso
+queda en un chunk aparte que solo se descarga cuando alguien abre el
+generador de cotizaciones, no en el bundle principal de la tienda.
 
 ## Instalación y desarrollo
 
