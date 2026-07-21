@@ -3,6 +3,7 @@ const { getDb } = require('../db/connection');
 const DELIVERY_TYPES = ['Retiro Providencia', 'Retiro Vitacura', 'Despacho a Domicilio RM'];
 const DISPATCH_FEE = 3990;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ORDER_STATUSES = ['pendiente', 'despachado', 'entregado'];
 
 class OrderError extends Error {
   constructor(status, message) {
@@ -168,7 +169,7 @@ async function placeOrder({ customer, deliveryType, items, billing }) {
          customer_name, rut, email, phone, delivery_type, total_amount, status,
          document_type, billing_rut, billing_razon_social, billing_giro, billing_address
        )
-       VALUES (?, ?, ?, ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?)`,
       customer.name.trim(),
       customer.rut.trim(),
       customer.email.trim(),
@@ -199,7 +200,7 @@ async function placeOrder({ customer, deliveryType, items, billing }) {
 
     return {
       id: orderId,
-      status: 'confirmed',
+      status: 'pendiente',
       delivery_type: deliveryType,
       document_type: billing.document_type,
       total_amount: totalAmount,
@@ -236,4 +237,52 @@ async function createOrder(req, res, next) {
   }
 }
 
-module.exports = { createOrder, isValidRut };
+/**
+ * GET /api/orders
+ * Lista todos los pedidos para el panel admin, más recientes primero, con la
+ * cantidad de líneas de cada uno.
+ */
+async function listOrders(req, res, next) {
+  try {
+    const db = await getDb();
+    const orders = await db.all(
+      `SELECT o.*, COUNT(oi.id) AS item_count
+       FROM orders o
+       LEFT JOIN order_items oi ON oi.order_id = o.id
+       GROUP BY o.id
+       ORDER BY o.created_at DESC, o.id DESC`
+    );
+    res.json({ count: orders.length, orders });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * PATCH /api/orders/:id/status
+ * Avanza un pedido por el pipeline de gestión del panel admin.
+ */
+async function updateOrderStatus(req, res, next) {
+  try {
+    const db = await getDb();
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!ORDER_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `El estado debe ser uno de: ${ORDER_STATUSES.join(', ')}.` });
+    }
+
+    const order = await db.get('SELECT id FROM orders WHERE id = ?', id);
+    if (!order) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    await db.run('UPDATE orders SET status = ? WHERE id = ?', status, id);
+    const updated = await db.get('SELECT * FROM orders WHERE id = ?', id);
+    res.json({ order: updated });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { createOrder, listOrders, updateOrderStatus, isValidRut, ORDER_STATUSES };

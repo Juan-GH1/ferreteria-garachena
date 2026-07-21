@@ -30,6 +30,13 @@ async function runMigrations(db) {
     billing_giro: 'TEXT',
     billing_address: 'TEXT',
   });
+
+  // Órdenes creadas antes del panel admin quedaron con status='confirmed';
+  // se normalizan a 'pendiente' para que entren al pipeline pendiente/despachado/entregado.
+  const ordersTable = await db.get("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'orders'");
+  if (ordersTable) {
+    await db.run("UPDATE orders SET status = 'pendiente' WHERE status = 'confirmed'");
+  }
 }
 
 async function initDb() {

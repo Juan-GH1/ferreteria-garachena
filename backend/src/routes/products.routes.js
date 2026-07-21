@@ -4,6 +4,7 @@ const {
   searchProducts,
   getProductById,
   getProductStock,
+  updateProduct,
 } = require('../controllers/products.controller');
 const { importProducts, upload } = require('../controllers/import.controller');
 const { requireAdminKey } = require('../middleware/requireAdminKey');
@@ -16,6 +17,7 @@ router.get('/search', searchProducts);
 router.get('/:id/stock', getProductStock);
 router.get('/:id', getProductById);
 router.get('/', getAllProducts);
+router.put('/:id', requireAdminKey, updateProduct);
 
 // Errores de multer (extensión no soportada, archivo demasiado grande) se
 // devuelven como 400 con mensaje claro en vez del 500 genérico por defecto.

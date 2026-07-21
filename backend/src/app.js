@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const productsRoutes = require('./routes/products.routes');
 const ordersRoutes = require('./routes/orders.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/products', productsRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404
 app.use((req, res) => {

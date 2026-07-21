@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS orders (
   phone               TEXT NOT NULL,
   delivery_type       TEXT NOT NULL,
   total_amount        INTEGER NOT NULL,
-  status              TEXT NOT NULL DEFAULT 'confirmed',
+  -- Pipeline de gestión del panel admin: pendiente -> despachado -> entregado.
+  status              TEXT NOT NULL DEFAULT 'pendiente',
   -- Documento tributario: 'boleta' (default) o 'factura'. Los campos billing_*
   -- solo se llenan cuando document_type = 'factura'.
   document_type       TEXT NOT NULL DEFAULT 'boleta',

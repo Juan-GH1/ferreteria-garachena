@@ -26,7 +26,7 @@ async function getAllProducts(req, res, next) {
     const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const products = await db.all(
-      `SELECT id, name, description, price, category, brand, image_url
+      `SELECT id, sku, name, description, price, category, brand, image_url
        FROM products
        ${whereClause}
        ORDER BY name ASC`,
@@ -152,9 +152,89 @@ async function getProductStock(req, res, next) {
   }
 }
 
+const EDITABLE_BRANCHES = ['Providencia', 'Vitacura'];
+
+/**
+ * PUT /api/products/:id
+ * Edición rápida desde el panel admin: precio y/o stock por sucursal. Ambos
+ * campos son opcionales (se puede mandar solo uno), pero al menos uno debe
+ * venir en el body.
+ */
+async function updateProduct(req, res, next) {
+  try {
+    const db = await getDb();
+    const { id } = req.params;
+
+    const product = await db.get('SELECT id FROM products WHERE id = ?', id);
+    if (!product) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    const { price, stock } = req.body;
+    const errors = [];
+
+    if (price === undefined && stock === undefined) {
+      errors.push('Debes enviar "price" y/o "stock" para actualizar.');
+    }
+    if (price !== undefined && (!Number.isFinite(price) || price < 0)) {
+      errors.push('El precio debe ser un número mayor o igual a 0.');
+    }
+    if (stock !== undefined) {
+      if (typeof stock !== 'object' || stock === null || Array.isArray(stock)) {
+        errors.push('El stock debe ser un objeto { Providencia, Vitacura }.');
+      } else {
+        for (const [branch, qty] of Object.entries(stock)) {
+          if (!EDITABLE_BRANCHES.includes(branch)) {
+            errors.push(`Sucursal desconocida: "${branch}".`);
+          } else if (!Number.isInteger(qty) || qty < 0) {
+            errors.push(`El stock de ${branch} debe ser un número entero mayor o igual a 0.`);
+          }
+        }
+      }
+    }
+
+    if (errors.length) {
+      return res.status(400).json({ error: 'Datos inválidos', details: errors });
+    }
+
+    if (price !== undefined) {
+      await db.run('UPDATE products SET price = ? WHERE id = ?', Math.round(price), id);
+    }
+
+    if (stock !== undefined) {
+      const branches = await db.all('SELECT id, name FROM branches');
+      const branchIdByName = Object.fromEntries(branches.map((b) => [b.name, b.id]));
+
+      for (const [branch, qty] of Object.entries(stock)) {
+        await db.run(
+          `UPDATE inventory SET stock = ?, updated_at = datetime('now') WHERE product_id = ? AND branch_id = ?`,
+          qty,
+          id,
+          branchIdByName[branch]
+        );
+      }
+    }
+
+    const updated = await db.get('SELECT id, sku, name, description, price, category, brand, image_url FROM products WHERE id = ?', id);
+    const stockRows = await db.all(
+      `SELECT b.name AS branch, i.stock
+       FROM inventory i
+       JOIN branches b ON b.id = i.branch_id
+       WHERE i.product_id = ?`,
+      id
+    );
+    updated.stock = Object.fromEntries(stockRows.map((row) => [row.branch, row.stock]));
+
+    res.json({ product: updated });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getAllProducts,
   searchProducts,
   getProductById,
   getProductStock,
+  updateProduct,
 };

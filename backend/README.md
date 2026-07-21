@@ -79,8 +79,14 @@ npm run db:seed   # carga productos y stock de ejemplo (no duplica si ya existen
 | GET    | `/api/products/search?q=texto`          | Autocompletado difuso: tolera typos y tildes (máx. 8 resultados) |
 | GET    | `/api/products/:id`                     | Detalle de un producto                                   |
 | GET    | `/api/products/:id/stock`               | Stock por sucursal (todas). Filtrar con `?branch=Vitacura` |
+| PUT    | `/api/products/:id`                     | 🔒 Edición rápida de precio y/o stock por sucursal (panel admin) |
 | POST   | `/api/orders`                           | Crea una orden y descuenta stock de forma transaccional  |
-| POST   | `/api/products/import`                  | Carga masiva de catálogo/stock desde .csv/.xlsx/.xls (ver abajo) |
+| GET    | `/api/orders`                           | 🔒 Lista todos los pedidos, más recientes primero (panel admin) |
+| PATCH  | `/api/orders/:id/status`                | 🔒 Actualiza el estado de un pedido (`pendiente`/`despachado`/`entregado`) |
+| GET    | `/api/admin/summary`                    | 🔒 KPIs del dashboard: pedidos pendientes, ventas del día, alerta de stock bajo, últimos pedidos |
+| POST   | `/api/products/import`                  | 🔒 Carga masiva de catálogo/stock desde .csv/.xlsx/.xls (ver abajo) |
+
+🔒 = protegido por `requireAdminKey` (exige `X-Admin-Key` si `ADMIN_API_KEY` está definida en `.env`; sin definir, queda abierto para desarrollo/demo).
 
 ### Ejemplos
 
@@ -136,6 +142,9 @@ FTS5 con índice de trigramas.
   `{"document_type": "factura", "rut", "razon_social", "giro", "address"}` los
   cuatro campos son obligatorios y el RUT de la empresa se valida con el mismo
   algoritmo módulo 11 que el RUT del cliente.
+- **Estado del pedido:** toda orden nace en `pendiente` y avanza por
+  `pendiente → despachado → entregado` desde el panel admin
+  (`PATCH /api/orders/:id/status`, ver `frontend/README.md`).
 
 ### Importación masiva de inventario (puente hacia Sisgen)
 

@@ -39,7 +39,12 @@ frontend/
         ├── CartDrawer.jsx       # panel lateral animado
         ├── CheckoutModal.jsx    # formulario de 2 pasos + confirmación
         ├── SuccessModal.jsx
-        └── AdminPanel.jsx       # equivalente al admin.html original, en /admin
+        └── admin/                # Panel de Administración, ver sección propia más abajo
+            ├── AdminLayout.jsx / AdminSidebar.jsx / AdminLogin.jsx
+            ├── AdminDashboard.jsx
+            ├── AdminOrders.jsx
+            ├── AdminCatalog.jsx / AdminProductEditModal.jsx
+            └── AdminImport.jsx   # equivalente al admin.html original
 
 tests/e2e/                       # suite E2E con @playwright/test (ver más abajo)
 playwright.config.js
@@ -94,11 +99,42 @@ npm run preview   # sirve el build localmente para probarlo
 
 ## Rutas
 
-| Ruta             | Página                                                        |
-|------------------|----------------------------------------------------------------|
-| `/`              | Catálogo, buscador, filtros, carrito y checkout (cliente final)|
-| `/producto/:id`  | Ficha de producto con meta-tags dinámicos (SEO/OG)             |
-| `/admin`         | Importación masiva de inventario vía CSV/XLSX (uso interno)    |
+| Ruta               | Página                                                        |
+|--------------------|------------------------------------------------------------------|
+| `/`                | Catálogo, buscador, filtros, carrito y checkout (cliente final)  |
+| `/producto/:id`    | Ficha de producto con meta-tags dinámicos (SEO/OG)                |
+| `/admin`           | Panel de administración: Resumen (dashboard/KPIs)                 |
+| `/admin/pedidos`   | Gestión de pedidos (estado pendiente/despachado/entregado)        |
+| `/admin/catalogo`  | Catálogo completo con edición rápida de precio y stock             |
+| `/admin/importar`  | Importación masiva de inventario vía CSV/XLSX                      |
+
+## Panel de Administración (`/admin`)
+
+Todas las rutas `/admin/*` viven bajo `AdminLayout.jsx`, que actúa como
+guardia de acceso: si no hay sesión, muestra `AdminLogin.jsx` (contraseña
+`garachena2026`) en vez del contenido. Es un **login simulado** — solo
+controla qué se muestra en este navegador (`useAdminAuth`, `localStorage`) y
+es independiente de la protección real del backend, la clave opcional
+`ADMIN_API_KEY` (ver `backend/README.md`). Esa clave del servidor se
+configura una sola vez desde un campo en `AdminSidebar.jsx` y la reutilizan
+todas las páginas del panel (`X-Admin-Key` en cada llamada admin de `api.js`).
+
+- **Resumen** (`AdminDashboard.jsx`): Bento Grid con pedidos pendientes,
+  ventas del día, alerta de stock bajo (≤ 5 unidades) y los últimos 5
+  pedidos, desde `GET /api/admin/summary`.
+- **Pedidos** (`AdminOrders.jsx`): tabla con documento (boleta/factura + RUT)
+  y un selector de estado por fila que llama a `PATCH /api/orders/:id/status`
+  con actualización optimista.
+- **Catálogo** (`AdminCatalog.jsx`): tabla de los ~1017 productos con
+  buscador por SKU/nombre (filtro cliente) y paginación de 20 en 20; el lápiz
+  de cada fila abre `AdminProductEditModal.jsx`, que edita precio y stock por
+  sucursal vía `PUT /api/products/:id`.
+- **Importar** (`AdminImport.jsx`): la herramienta de carga masiva original,
+  reubicada dentro del layout del panel.
+
+La transición entre pestañas del sidebar usa un indicador animado con
+`layoutId` de Framer Motion, y el contenido de cada página hace fade/slide al
+cambiar de ruta (`AnimatePresence` en `AdminLayout.jsx`).
 
 ## SEO y rendimiento
 
