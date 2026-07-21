@@ -1,18 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Paintbrush, Store, Truck } from 'lucide-react';
+import { ArrowRight, Paintbrush, Store, Truck } from 'lucide-react';
+import { searchProducts } from '../api';
+import { formatPrice } from '../utils/format';
 
 // Paleta de fórmulas propias Garachena (tintometría digital en el día).
+// searchTerm conecta cada muestra con un producto real del catálogo
+// importado (ver Épica 4): se busca por keyword y se usa el mejor match.
 const PAINT_COLORS = [
-  { name: 'Blanco Invierno', hex: '#f1efe7' },
-  { name: 'Lino Providencia', hex: '#d9c9a3' },
-  { name: 'Terracota Andina', hex: '#c96f4a' },
-  { name: 'Verde Salvia', hex: '#8ca188' },
-  { name: 'Azul Pacífico', hex: '#4a6b9a' },
-  { name: 'Grafito Urbano', hex: '#5b5e66' },
+  { name: 'Blanco Invierno', hex: '#f1efe7', searchTerm: 'BLANCO' },
+  { name: 'Lino Providencia', hex: '#d9c9a3', searchTerm: 'HUESO' },
+  { name: 'Terracota Andina', hex: '#c96f4a', searchTerm: 'LADRILLO' },
+  { name: 'Verde Salvia', hex: '#8ca188', searchTerm: 'VERDE' },
+  { name: 'Azul Pacífico', hex: '#4a6b9a', searchTerm: 'AZUL' },
+  { name: 'Grafito Urbano', hex: '#5b5e66', searchTerm: 'GRAFITO' },
 ];
 
 const SPRING = { type: 'spring', stiffness: 300, damping: 20 };
+const GALON_REGEX = /GLN|GAL[OÓ]N/i;
 
 function PaintSwatch({ color, selected, onSelect }) {
   return (
@@ -116,12 +122,58 @@ function FeatureTile({ icon: Icon, title, caption }) {
   );
 }
 
+/** CTA que conecta la muestra seleccionada con su producto real en el catálogo. */
+function BuyLinkedProductButton({ product }) {
+  const navigate = useNavigate();
+  if (!product) return null;
+
+  const label = GALON_REGEX.test(product.name) ? 'Comprar este color en 1 Galón' : 'Ver ficha del producto';
+
+  return (
+    <motion.button
+      type="button"
+      whileHover={{ scale: 1.015, y: -1 }}
+      whileTap={{ scale: 0.98 }}
+      transition={SPRING}
+      onClick={() => navigate(`/producto/${product.id}`)}
+      className="mt-4 w-full flex items-center justify-between gap-3 bg-brand-blue hover:bg-brand-blueDark text-white rounded-xl px-4 py-3 shadow-md shadow-brand-blue/20 hover:shadow-lg hover:shadow-brand-blue/30 transition-all duration-300"
+    >
+      <span className="text-left min-w-0">
+        <span className="block text-[13px] font-bold tracking-tight">{label}</span>
+        <span className="block text-[11px] text-white/75 truncate">
+          {product.name} · {formatPrice(product.price)}
+        </span>
+      </span>
+      <ArrowRight className="w-4 h-4 shrink-0" />
+    </motion.button>
+  );
+}
+
 /**
  * Bento del hero: habitación de muestra (pieza grande), panel de muestras y
- * dos tiles de propuesta de valor.
+ * dos tiles de propuesta de valor. Cada muestra está conectada a un producto
+ * real del catálogo (buscado por keyword al montar), con un CTA que lleva
+ * directo a su ficha para comprar.
  */
 export default function PaintSimulator() {
   const [selected, setSelected] = useState(PAINT_COLORS[0]);
+  const [linkedProducts, setLinkedProducts] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(
+      PAINT_COLORS.map((color) =>
+        searchProducts(color.searchTerm)
+          .then(({ products }) => [color.hex, products[0] || null])
+          .catch(() => [color.hex, null])
+      )
+    ).then((entries) => {
+      if (!cancelled) setLinkedProducts(Object.fromEntries(entries));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-5 gap-4 md:grid-rows-[auto_1fr]">
@@ -141,6 +193,12 @@ export default function PaintSimulator() {
             <PaintSwatch key={color.hex} color={color} selected={selected.hex === color.hex} onSelect={setSelected} />
           ))}
         </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div key={selected.hex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <BuyLinkedProductButton product={linkedProducts[selected.hex]} />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4">
