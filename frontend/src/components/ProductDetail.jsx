@@ -8,6 +8,7 @@ import { useCart } from '../hooks/useCart';
 import { useMeta } from '../hooks/useMeta';
 import { useToast } from '../hooks/useToast';
 import Footer from './Footer';
+import ProductImage from './ProductImage';
 import WhatsappButton from './WhatsappButton';
 
 function StockBadge({ branch, qty }) {
@@ -62,13 +63,11 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    setImageLoaded(false);
     fetchProductWithStock(id)
       .then((data) => {
         if (!cancelled) setProduct(data);
@@ -134,22 +133,14 @@ export default function ProductDetail() {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start"
           >
-            <div className="relative bg-gradient-to-b from-white to-slate-50 rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] aspect-square flex items-center justify-center p-10 overflow-hidden">
-              {/* Skeleton de la imagen hasta que termina de descargar */}
-              {!imageLoaded && <div className="absolute inset-6 rounded-2xl bg-slate-100 animate-pulse" aria-hidden />}
-              {/* Imagen principal: eager + fetchpriority alta, es el LCP de la página */}
-              <motion.img
-                src={product.image_url || ''}
-                alt={product.name}
-                fetchPriority="high"
-                decoding="async"
-                onLoad={() => setImageLoaded(true)}
-                initial={false}
-                animate={{ opacity: imageLoaded ? 1 : 0, scale: imageLoaded ? 1 : 0.97 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="relative object-contain max-h-full max-w-full drop-shadow-sm"
-              />
-            </div>
+            {/* Imagen principal: eager + fetchpriority alta, es el LCP de la página */}
+            <ProductImage
+              product={product}
+              loading="eager"
+              fetchPriority="high"
+              skeleton
+              className="aspect-square rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+            />
 
             <div className="space-y-6">
               <div>

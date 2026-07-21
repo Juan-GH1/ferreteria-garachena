@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import { formatPrice } from '../utils/format';
+import ProductImage from './ProductImage';
 
 function CartItemRow({ item, onIncrease, onDecrease, onRemove }) {
   return (
@@ -11,13 +12,7 @@ function CartItemRow({ item, onIncrease, onDecrease, onRemove }) {
       exit={{ opacity: 0, height: 0 }}
       className="flex gap-4 py-4 overflow-hidden"
     >
-      <img
-        src={item.image_url || ''}
-        alt={item.name}
-        loading="lazy"
-        decoding="async"
-        className="w-16 h-16 object-contain bg-slate-50 rounded-xl shrink-0 shadow-inner"
-      />
+      <ProductImage product={item} loading="lazy" className="w-16 h-16 rounded-xl shrink-0 shadow-inner" />
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3">
           <p className="text-[13px] font-bold tracking-tight text-slate-900 leading-snug line-clamp-2">{item.name}</p>

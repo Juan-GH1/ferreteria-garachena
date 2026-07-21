@@ -48,6 +48,8 @@ export function useCart(showToast) {
             name: product.name,
             price: product.price,
             image_url: product.image_url,
+            category: product.category,
+            sku: product.sku,
             stock: product.stock,
             qty: 1,
           },

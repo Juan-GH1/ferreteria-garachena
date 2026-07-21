@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { fetchProductWithStock, fetchProducts, searchProducts } from '../api';
 import { totalStockOf } from '../utils/format';
 import { useToast } from '../hooks/useToast';
@@ -7,6 +7,8 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useMeta } from '../hooks/useMeta';
 import { EMPTY_FILTERS, hasActiveFilters } from '../utils/filters';
 import Header from './Header';
+import Hero from './Hero';
+import CategoryGrid from './CategoryGrid';
 import Sidebar from './Sidebar';
 import PaintSimulator from './PaintSimulator';
 import ProductGrid from './ProductGrid';
@@ -45,6 +47,17 @@ export default function Catalog() {
   const [successOrder, setSuccessOrder] = useState(null);
 
   const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const catalogRef = useRef(null);
+
+  function scrollToCatalog() {
+    catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function handleCategoryShortcut(categoryValues) {
+    setFilters({ ...EMPTY_FILTERS, categories: categoryValues });
+    setSearchQuery('');
+    requestAnimationFrame(scrollToCatalog);
+  }
 
   // Facetas dinámicas: categorías/marcas con conteos y rango de precios,
   // derivadas del catálogo real (no listas hardcodeadas).
@@ -197,11 +210,16 @@ export default function Catalog() {
         onCloseSearch={() => setSearchOpen(false)}
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+      <Hero onViewCatalog={scrollToCatalog} onBrowseTools={() => handleCategoryShortcut(['Herramientas Manuales'])} />
+
+      <div className="max-w-7xl mx-auto px-4 -mt-14 relative z-10">
+        <CategoryGrid onSelect={handleCategoryShortcut} />
+      </div>
+
+      <main ref={catalogRef} className="max-w-7xl mx-auto px-4 py-12 flex-grow w-full scroll-mt-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <Sidebar facets={facets} filters={filters} onFiltersChange={setFilters} />
           <div className="lg:col-span-9 space-y-6">
-            <PaintSimulator />
             <ProductGrid
               products={visibleProducts}
               matchCount={filteredProducts.length}
@@ -218,6 +236,10 @@ export default function Catalog() {
           </div>
         </div>
       </main>
+
+      <section className="max-w-7xl mx-auto px-4 pb-16">
+        <PaintSimulator />
+      </section>
 
       <Footer />
       <WhatsappButton />

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { formatPrice, totalStockOf } from '../utils/format';
+import ProductImage from './ProductImage';
 
 function StockPill({ label, qty }) {
   const tone =
@@ -39,15 +40,9 @@ export default function ProductCard({ product, onAdd }) {
       className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-lift transition-shadow duration-300 overflow-hidden flex flex-col group justify-between"
     >
       <div>
-        <Link to={`/producto/${product.id}`} className="relative bg-gradient-to-b from-slate-50 to-slate-100/60 aspect-square overflow-hidden flex items-center justify-center p-6">
+        <Link to={`/producto/${product.id}`} className="block">
           {/* Lazy loading: las tarjetas fuera del viewport no descargan su imagen */}
-          <img
-            src={product.image_url || ''}
-            alt={product.name}
-            loading="lazy"
-            decoding="async"
-            className="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-300"
-          />
+          <ProductImage product={product} loading="lazy" className="aspect-square" />
         </Link>
         <div className="p-5 space-y-2.5">
           <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.14em]">{product.brand || 'Garachena'}</p>
