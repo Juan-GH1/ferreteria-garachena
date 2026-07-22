@@ -29,8 +29,10 @@ frontend/
     └── components/
         ├── Catalog.jsx         # página de la tienda (equivalente al index.html original)
         ├── Header.jsx           # logo, buscador con autocompletado, botones de carrito
-        ├── Hero.jsx              # hero comercial de la Home (CTAs a catálogo/herramientas)
-        ├── CategoryGrid.jsx      # accesos rápidos a las 4 categorías destacadas
+        ├── Hero.jsx              # hero con switcher B2C/B2B (ver abajo)
+        ├── QuickToolsHub.jsx     # 3 tarjetas bento: calculadora, cotizador, despacho
+        ├── TrustBadges.jsx       # 4 badges de confianza
+        ├── CategoryGrid.jsx      # bento de categorías con disponibilidad real
         ├── Sidebar.jsx
         ├── ProductGrid.jsx / ProductCard.jsx
         ├── ProductImage.jsx      # foto real o ilustración vectorial de fallback (ver abajo)
@@ -52,6 +54,31 @@ frontend/
 tests/e2e/                       # suite E2E con @playwright/test (ver más abajo)
 playwright.config.js
 ```
+
+### Homepage: switcher B2C/B2B
+
+No existe un `Home.jsx` separado: la landing vive en `Catalog.jsx` (que también
+maneja el carrito, la búsqueda y los filtros de la página "/"), compuesta por
+varias secciones:
+
+1. **`Hero.jsx`**: switcher "Proyectos del Hogar" / "Contratistas y
+   Constructoras" con un indicador animado (`layoutId`, mismo patrón que
+   `AdminSidebar`). En modo B2B cambia el copy, destaca el botón "Generar
+   Cotización en PDF" (abre `B2BQuoteModal` con el carrito actual) y agrega
+   una búsqueda rápida por código SKU sobre el catálogo ya cargado por
+   `Catalog.jsx` (sin pegarle otra vez al backend).
+2. **`QuickToolsHub.jsx`**: 3 tarjetas bento que flotan sobre el borde del
+   Hero — Calculadora de Pintura (abre `PaintCalculatorModal` sin producto
+   vinculado), Cotizador B2B Express (abre `B2BQuoteModal`) y una tarjeta
+   informativa de cobertura de despacho.
+3. **`TrustBadges.jsx`**: 4 badges de garantía ferretera.
+4. **`CategoryGrid.jsx`**: bento de categorías con conteo real de productos y
+   una etiqueta "En stock" (`facets.categories` de `Catalog.jsx`, no números
+   hardcodeados) y un efecto de blob líquido en hover. El conteo/disponibilidad
+   se marca `aria-hidden` para que el nombre accesible del botón siga siendo
+   solo la categoría (p. ej. "Pinturas"), tanto para lectores de pantalla como
+   para que los selectores de Playwright (`getByRole('button', { name: 'Pinturas', exact: true })`)
+   sigan funcionando.
 
 ### ProductImage: fallback vectorial inteligente
 

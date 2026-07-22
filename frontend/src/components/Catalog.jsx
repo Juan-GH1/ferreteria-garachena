@@ -8,6 +8,8 @@ import { useMeta } from '../hooks/useMeta';
 import { EMPTY_FILTERS, hasActiveFilters } from '../utils/filters';
 import Header from './Header';
 import Hero from './Hero';
+import QuickToolsHub from './QuickToolsHub';
+import TrustBadges from './TrustBadges';
 import CategoryGrid from './CategoryGrid';
 import Sidebar from './Sidebar';
 import PaintSimulator from './PaintSimulator';
@@ -17,6 +19,8 @@ import WhatsappButton from './WhatsappButton';
 import CartDrawer from './CartDrawer';
 import CheckoutModal from './CheckoutModal';
 import SuccessModal from './SuccessModal';
+import PaintCalculatorModal from './PaintCalculatorModal';
+import B2BQuoteModal from './B2BQuoteModal';
 
 const PAGE_SIZE = 48;
 
@@ -45,6 +49,8 @@ export default function Catalog() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
+  const [homeCalculatorOpen, setHomeCalculatorOpen] = useState(false);
+  const [homeQuoteOpen, setHomeQuoteOpen] = useState(false);
 
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const catalogRef = useRef(null);
@@ -210,10 +216,17 @@ export default function Catalog() {
         onCloseSearch={() => setSearchOpen(false)}
       />
 
-      <Hero onViewCatalog={scrollToCatalog} onBrowseTools={() => handleCategoryShortcut(['Herramientas Manuales'])} />
+      <Hero
+        onViewCatalog={scrollToCatalog}
+        onBrowseTools={() => handleCategoryShortcut(['Herramientas Manuales'])}
+        onOpenQuote={() => setHomeQuoteOpen(true)}
+        products={products}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 -mt-14 relative z-10">
-        <CategoryGrid onSelect={handleCategoryShortcut} />
+      <div className="max-w-7xl mx-auto px-4 -mt-14 relative z-10 space-y-8">
+        <QuickToolsHub onOpenCalculator={() => setHomeCalculatorOpen(true)} onOpenQuote={() => setHomeQuoteOpen(true)} />
+        <TrustBadges />
+        <CategoryGrid onSelect={handleCategoryShortcut} categoryCounts={facets.categories} />
       </div>
 
       <main ref={catalogRef} className="max-w-7xl mx-auto px-4 py-12 flex-grow w-full scroll-mt-24">
@@ -255,6 +268,9 @@ export default function Catalog() {
       />
 
       <SuccessModal order={successOrder} onClose={() => setSuccessOrder(null)} />
+
+      <PaintCalculatorModal open={homeCalculatorOpen} onClose={() => setHomeCalculatorOpen(false)} product={null} onAdd={cart.addMany} />
+      <B2BQuoteModal open={homeQuoteOpen} onClose={() => setHomeQuoteOpen(false)} items={cart.items} />
     </div>
   );
 }
