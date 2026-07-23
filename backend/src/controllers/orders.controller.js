@@ -1,4 +1,5 @@
 const { getDb } = require('../db/connection');
+const { getTieredUnitPrice } = require('../utils/pricing');
 
 const DELIVERY_TYPES = ['Retiro Providencia', 'Retiro Vitacura', 'Despacho a Domicilio RM'];
 const DISPATCH_FEE = 3990;
@@ -151,13 +152,18 @@ async function placeOrder({ customer, deliveryType, items, billing }) {
         );
       }
 
+      // Precio por tramos de volumen (utils/pricing.js): se recalcula aquí a
+      // partir del precio real en BD y la cantidad, nunca se confía en un
+      // precio/descuento que venga del cliente.
+      const unitPrice = getTieredUnitPrice(product.price, item.quantity);
+
       resolvedItems.push({
         product_id: product.id,
         quantity: item.quantity,
-        price: product.price,
+        price: unitPrice,
         branch_deducted: branch,
       });
-      itemsTotal += product.price * item.quantity;
+      itemsTotal += unitPrice * item.quantity;
     }
 
     const dispatchFee = deliveryType === 'Despacho a Domicilio RM' ? DISPATCH_FEE : 0;

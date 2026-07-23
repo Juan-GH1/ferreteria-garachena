@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FileDown, X } from 'lucide-react';
 import { createOrder } from '../api';
 import { formatPrice } from '../utils/format';
 import { isValidRut } from '../utils/rut';
+import { computeLineTotal } from '../utils/pricing';
 import B2BQuoteModal from './B2BQuoteModal';
 
 const DISPATCH_FEE = 3990;
@@ -27,14 +28,35 @@ const EMPTY_FORM = {
   billingAddress: '',
 };
 
-export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onStockConflict }) {
+/** Traduce la preferencia del selector de logística (Header/CartDrawer) al value real del checkout. */
+function mapPreferenceToDeliveryType(preference) {
+  if (!preference) return DELIVERY_OPTIONS[0].value;
+  if (preference.type === 'pickup') return preference.branch === 'Vitacura' ? 'Retiro Vitacura' : 'Retiro Providencia';
+  return 'Despacho a Domicilio RM';
+}
+
+export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onStockConflict, deliveryPreference }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
 
-  const itemsTotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+  // Precarga el tipo de entrega según lo elegido en DeliveryLocationSelector
+  // (Header/CartDrawer) cada vez que se abre el modal — el usuario sigue
+  // pudiendo cambiarlo libremente en el paso 1, esto solo evita que tenga
+  // que repetir una elección que ya hizo.
+  useEffect(() => {
+    if (open) setForm((f) => ({ ...f, deliveryType: mapPreferenceToDeliveryType(deliveryPreference) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo debe re-seedear al abrir, no en cada cambio de deliveryPreference mientras está abierto
+  }, [open]);
+
+  // Mismo cálculo por tramos que el carrito (utils/pricing.js), para que el
+  // total del checkout coincida exactamente con el que vio el cliente en el
+  // CartDrawer. El backend recalcula el mismo descuento de forma
+  // independiente al crear la orden (nunca confía en un total del cliente).
+  const itemsTotal = cartItems.reduce((sum, item) => sum + computeLineTotal(item.price, item.qty).lineTotal, 0);
+  const totalSavings = cartItems.reduce((sum, item) => sum + computeLineTotal(item.price, item.qty).savings, 0);
   const dispatchFee = form.deliveryType === 'Despacho a Domicilio RM' ? DISPATCH_FEE : 0;
   const total = itemsTotal + dispatchFee;
   const subtotal = total / 1.19;
@@ -302,14 +324,22 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                 ) : (
                   <div className="space-y-4">
                     <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                      {cartItems.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between text-sm gap-2">
-                          <span className="text-slate-600 font-semibold truncate">
-                            {item.name} <span className="text-slate-400">×{item.qty}</span>
-                          </span>
-                          <span className="text-slate-700 font-bold shrink-0">{formatPrice(item.price * item.qty)}</span>
-                        </div>
-                      ))}
+                      {cartItems.map((item) => {
+                        const { lineTotal, tier } = computeLineTotal(item.price, item.qty);
+                        return (
+                          <div key={item.id} className="flex items-center justify-between text-sm gap-2">
+                            <span className="text-slate-600 font-semibold truncate">
+                              {item.name} <span className="text-slate-400">×{item.qty}</span>
+                              {tier.discount > 0 && (
+                                <span className="ml-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full align-middle">
+                                  -{Math.round(tier.discount * 100)}%
+                                </span>
+                              )}
+                            </span>
+                            <span className="text-slate-700 font-bold shrink-0">{formatPrice(lineTotal)}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                     <div className="flex items-center justify-between text-sm bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
                       <span className="text-slate-500 font-semibold">Documento</span>
@@ -318,6 +348,12 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                       </span>
                     </div>
                     <div className="border-t border-slate-100 pt-3 space-y-1.5">
+                      {totalSavings > 0 && (
+                        <div className="flex items-center justify-between text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl -mx-1">
+                          <span>Ahorro por volumen</span>
+                          <span>-{formatPrice(totalSavings)}</span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between text-sm text-slate-500 font-semibold">
                         <span>Subtotal (neto)</span>
                         <span>{formatPrice(subtotal)}</span>

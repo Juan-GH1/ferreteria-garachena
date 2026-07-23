@@ -19,10 +19,13 @@ frontend/
     ├── api.js                 # todas las llamadas a la API del backend
     ├── utils/
     │   ├── format.js          # formatPrice, stock por sucursal
-    │   └── rut.js              # validación de RUT chileno (dígito verificador)
+    │   ├── rut.js              # validación de RUT chileno (dígito verificador)
+    │   ├── pricing.js          # tramos de descuento por volumen (ver abajo)
+    │   └── delivery.js         # insignias de ETA de retiro/despacho (ver abajo)
     ├── hooks/
     │   ├── useCart.js          # estado del carrito + persistencia en localStorage
     │   ├── useDebouncedValue.js
+    │   ├── useDeliveryPreference.js  # preferencia de retiro/despacho, localStorage
     │   └── useToast.js
     ├── context/
     │   └── ToastContext.jsx    # notificaciones flotantes globales
@@ -39,6 +42,7 @@ frontend/
         ├── PaintSimulator.jsx    # simulador de color, conectado a productos reales del catálogo
         ├── Footer.jsx / WhatsappButton.jsx
         ├── CartDrawer.jsx       # panel lateral animado
+        ├── DeliveryLocationSelector.jsx  # retiro en tienda / despacho express (ver abajo)
         ├── CheckoutModal.jsx    # formulario de 2 pasos + confirmación
         ├── SuccessModal.jsx
         ├── PaintCalculatorModal.jsx     # calculadora de superficie -> galones (ver abajo)
@@ -181,6 +185,54 @@ paso 2 (resumen) de `CheckoutModal.jsx`.
 uso. `generateQuotePdf.js` las importa con `import()` dinámico, así ese peso
 queda en un chunk aparte que solo se descarga cuando alguien abre el
 generador de cotizaciones, no en el bundle principal de la tienda.
+
+### Precios por tramos de volumen (B2B)
+
+`utils/pricing.js` define una única tabla de tramos (`VOLUME_TIERS`), que se
+usa **idéntica en frontend y backend** — el backend tiene su propia copia
+CommonJS en `backend/src/utils/pricing.js`, mismos tramos:
+
+| Cantidad     | Descuento |
+|--------------|-----------|
+| 1-4 unidades | 0%        |
+| 5-19 unidades| 10%       |
+| 20+ unidades | 18%       |
+
+- **`ProductDetail.jsx`**: un `QuantityStepper` (+/-) controla la cantidad a
+  comprar; una mini-tabla (`VolumeTierTable`) muestra los 3 tramos con precio
+  unitario y el ahorro estimado en tiempo real, resaltando el tramo activo. El
+  botón "Añadir al carro" usa `useCart#addMany` con la cantidad elegida.
+- **`CartDrawer.jsx` / `CheckoutModal.jsx`**: cada línea muestra el precio
+  tachado (precio base) junto al precio con descuento y un badge `-X%` cuando
+  aplica; el footer suma una fila "Ahorro por volumen" con el ahorro total.
+- **`useCart.js`**: `totalPrice` se calcula con `computeLineTotal()` en vez de
+  `qty * price` — el ítem del carrito siempre guarda el precio **base** (nunca
+  se muta), así el descuento se recalcula solo si la cantidad cambia.
+- **Backend (`orders.controller.js`)**: `placeOrder` recalcula el precio por
+  tramos con `getTieredUnitPrice(product.price, item.quantity)` usando el
+  precio real de la BD, nunca un precio o descuento que venga del cliente —
+  es la única fuente de verdad de lo que efectivamente se cobra, y es lo que
+  queda guardado en `order_items.price`.
+
+### Logística omnicanal: retiro y despacho express
+
+`useDeliveryPreference.js` (hook, localStorage) y `utils/delivery.js`
+(`getDeliveryEta`) sostienen una preferencia de entrega compartida entre
+`Header.jsx`, `CartDrawer.jsx` y `CheckoutModal.jsx`, gestionada por
+`Catalog.jsx` y expuesta vía `DeliveryLocationSelector.jsx`:
+
+- **Retiro Gratis en Tienda**: Sucursal Vitacura o Sucursal Providencia —
+  insignia siempre "Listo para retiro hoy en 30 mins en {sucursal}".
+- **Despacho Express Sector Oriente**: Providencia, Vitacura, Las Condes o Lo
+  Barnechea — insignia "Entrega Hoy comprando antes de las 14:00" antes del
+  corte horario (`DELIVERY_CUTOFF_HOUR = 14`) o "Entrega mañana" después.
+
+`DeliveryLocationSelector.jsx` es un dropdown `rounded-full` con
+`AnimatePresence`, visible en el Header (desktop) y arriba del listado de
+ítems en `CartDrawer.jsx`. `CheckoutModal.jsx` no repite el selector: al
+abrirse, precarga su propio radio "Tipo de entrega" (paso 1) a partir de la
+preferencia elegida (`mapPreferenceToDeliveryType`), sin quitarle al cliente
+la libertad de cambiarlo ahí mismo.
 
 ## Instalación y desarrollo
 

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calculator, ShoppingCart, Truck } from 'lucide-react';
+import { ArrowLeft, Calculator, Layers, Minus, Plus, ShoppingCart, Truck } from 'lucide-react';
 import { fetchProductWithStock } from '../api';
 import { formatPrice, totalStockOf } from '../utils/format';
 import { isPaintCategory } from '../utils/paint';
+import { VOLUME_TIERS, computeLineTotal } from '../utils/pricing';
 import { useCart } from '../hooks/useCart';
 import { useMeta } from '../hooks/useMeta';
 import { useToast } from '../hooks/useToast';
@@ -29,6 +30,77 @@ function StockBadge({ branch, qty }) {
         <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} />
         {tone.label}
       </span>
+    </div>
+  );
+}
+
+/** Stepper de cantidad acotado por stock, mismo lenguaje visual que el del carrito. */
+function QuantityStepper({ qty, onChange, max }) {
+  return (
+    <div className="inline-flex items-center rounded-full bg-neutral-100 ring-1 ring-inset ring-neutral-200/70">
+      <button
+        type="button"
+        onClick={() => onChange(Math.max(1, qty - 1))}
+        disabled={qty <= 1}
+        title="Restar unidad"
+        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-neutral-500 transition-colors"
+      >
+        <Minus className="w-3.5 h-3.5" />
+      </button>
+      <span className="text-[14px] font-semibold w-10 text-center tabular-nums">{qty}</span>
+      <button
+        type="button"
+        onClick={() => onChange(Math.min(max, qty + 1))}
+        disabled={qty >= max}
+        title="Sumar unidad"
+        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-neutral-500 transition-colors"
+      >
+        <Plus className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Mini-tabla de precios por volumen (motor de descuentos B2B): 3 tramos con
+ * el precio unitario resultante, resaltando el tramo en el que cae la
+ * cantidad seleccionada. El ahorro se calcula con la misma función que usa
+ * el carrito (utils/pricing.js), así los números coinciden en todo el sitio.
+ */
+function VolumeTierTable({ basePrice, qty }) {
+  const { unitPrice, savings, tier } = computeLineTotal(basePrice, qty);
+
+  return (
+    <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+      <div className="px-4 py-3 border-b border-neutral-100">
+        <p className="text-[13px] font-semibold text-neutral-900 flex items-center gap-1.5">
+          <Layers className="w-3.5 h-3.5 text-brand-blue" /> Precio por volumen
+        </p>
+      </div>
+      <ul className="divide-y divide-neutral-100">
+        {VOLUME_TIERS.map((t) => {
+          const tierUnitPrice = Math.round(basePrice * (1 - t.discount));
+          const active = t.label === tier.label;
+          return (
+            <li key={t.label} className={`flex items-center justify-between px-4 py-2.5 text-[13px] ${active ? 'bg-brand-blueLight' : ''}`}>
+              <span className={`font-medium ${active ? 'text-brand-blue' : 'text-neutral-600'}`}>{t.label}</span>
+              <span className="flex items-center gap-2">
+                {t.discount > 0 && (
+                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                    -{Math.round(t.discount * 100)}%
+                  </span>
+                )}
+                <span className={`font-semibold tabular-nums ${active ? 'text-brand-blue' : 'text-neutral-900'}`}>{formatPrice(tierUnitPrice)}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      {savings > 0 && (
+        <p className="px-4 py-2.5 text-[12px] font-medium text-emerald-700 bg-emerald-50 border-t border-emerald-100">
+          Ahorras {formatPrice(savings)} comprando {qty} unidades ({Math.round(tier.discount * 100)}% de descuento) · {formatPrice(unitPrice)} c/u
+        </p>
+      )}
     </div>
   );
 }
@@ -67,11 +139,13 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [qty, setQty] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setQty(1);
     fetchProductWithStock(id)
       .then((data) => {
         if (!cancelled) setProduct(data);
@@ -170,17 +244,24 @@ export default function ProductDetail() {
                 Despacho Express en Santiago · Retiro en tienda gratis
               </div>
 
+              {!outOfStock && <VolumeTierTable basePrice={product.price} qty={qty} />}
+
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Cantidad</span>
+                <QuantityStepper qty={qty} onChange={setQty} max={Math.max(1, stock)} />
+              </div>
+
               <motion.button
                 type="button"
                 whileHover={outOfStock ? undefined : { scale: 1.02, y: -1 }}
                 whileTap={{ scale: outOfStock ? 1 : 0.97 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 disabled={outOfStock}
-                onClick={() => cart.add({ ...product, stock })}
+                onClick={() => cart.addMany({ ...product, stock }, qty)}
                 className="w-full flex items-center justify-center gap-2.5 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-4 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
               >
                 <ShoppingCart className="w-5 h-5" />
-                {outOfStock ? 'Sin stock disponible' : 'Añadir al carro'}
+                {outOfStock ? 'Sin stock disponible' : qty > 1 ? `Añadir ${qty} unidades al carro` : 'Añadir al carro'}
               </motion.button>
 
               {isPaintCategory(product.category) && (

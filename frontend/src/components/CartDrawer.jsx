@@ -3,11 +3,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { FileDown, Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import { formatPrice } from '../utils/format';
 import { pickCrossSellAnchor } from '../utils/crossSell';
+import { computeLineTotal } from '../utils/pricing';
 import B2BQuoteModal from './B2BQuoteModal';
 import CrossSellRecommendations from './CrossSellRecommendations';
+import DeliveryLocationSelector from './DeliveryLocationSelector';
 import ProductImage from './ProductImage';
 
 function CartItemRow({ item, onIncrease, onDecrease, onRemove }) {
+  const { unitPrice, lineTotal, fullTotal, savings, tier } = computeLineTotal(item.price, item.qty);
+  const hasDiscount = savings > 0;
+
   return (
     <motion.li
       layout
@@ -20,9 +25,19 @@ function CartItemRow({ item, onIncrease, onDecrease, onRemove }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3">
           <p className="text-[13px] font-bold tracking-tight text-slate-900 leading-snug line-clamp-2">{item.name}</p>
-          <span className="text-[13px] font-black tracking-tight text-slate-900 tabular-nums shrink-0">{formatPrice(item.price * item.qty)}</span>
+          <div className="text-right shrink-0">
+            {hasDiscount && <span className="block text-[10px] text-slate-400 line-through tabular-nums">{formatPrice(fullTotal)}</span>}
+            <span className="block text-[13px] font-black tracking-tight text-slate-900 tabular-nums">{formatPrice(lineTotal)}</span>
+          </div>
         </div>
-        <p className="text-[11px] text-slate-400 font-medium mt-0.5 tabular-nums">{formatPrice(item.price)} c/u</p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <p className="text-[11px] text-slate-400 font-medium tabular-nums">{formatPrice(unitPrice)} c/u</p>
+          {hasDiscount && (
+            <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+              -{Math.round(tier.discount * 100)}%
+            </span>
+          )}
+        </div>
         <div className="flex items-center justify-between mt-2.5">
           <div className="inline-flex items-center rounded-full bg-slate-50 ring-1 ring-inset ring-slate-200/70">
             <button
@@ -72,10 +87,11 @@ function TotalRow({ label, value, emphasis = false }) {
   );
 }
 
-export default function CartDrawer({ open, onClose, cart, onCheckout }) {
+export default function CartDrawer({ open, onClose, cart, onCheckout, deliveryPreference, onSetPickup, onSetDelivery }) {
   const { items, totalPrice, changeQty, remove } = cart;
   const subtotal = totalPrice / 1.19;
   const iva = totalPrice - subtotal;
+  const totalSavings = items.reduce((sum, item) => sum + computeLineTotal(item.price, item.qty).savings, 0);
   const crossSellAnchor = pickCrossSellAnchor(items);
   const [quoteOpen, setQuoteOpen] = useState(false);
 
@@ -113,6 +129,10 @@ export default function CartDrawer({ open, onClose, cart, onCheckout }) {
                 </button>
               </div>
 
+              <div className="px-6 pt-4 pb-1">
+                <DeliveryLocationSelector preference={deliveryPreference} onSetPickup={onSetPickup} onSetDelivery={onSetDelivery} />
+              </div>
+
               <div className="flex-1 overflow-y-auto px-6">
                 {items.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-8 text-slate-400">
@@ -147,6 +167,12 @@ export default function CartDrawer({ open, onClose, cart, onCheckout }) {
 
               {items.length > 0 && (
                 <div className="border-t border-slate-100 px-6 py-5 space-y-2 bg-white/70 backdrop-blur-md">
+                  {totalSavings > 0 && (
+                    <div className="flex items-center justify-between text-[12px] font-semibold text-emerald-700 bg-emerald-50 -mx-1 px-3 py-2 rounded-xl">
+                      <span>Ahorro por volumen</span>
+                      <span className="tabular-nums">-{formatPrice(totalSavings)}</span>
+                    </div>
+                  )}
                   <TotalRow label="Subtotal (neto)" value={formatPrice(subtotal)} />
                   <TotalRow label="IVA (19%)" value={formatPrice(iva)} />
                   <div className="border-t border-slate-100" />

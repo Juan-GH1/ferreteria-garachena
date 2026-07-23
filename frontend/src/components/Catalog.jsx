@@ -4,6 +4,7 @@ import { totalStockOf } from '../utils/format';
 import { useToast } from '../hooks/useToast';
 import { useCart } from '../hooks/useCart';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useDeliveryPreference } from '../hooks/useDeliveryPreference';
 import { useMeta } from '../hooks/useMeta';
 import { EMPTY_FILTERS, hasActiveFilters } from '../utils/filters';
 import Header from './Header';
@@ -27,6 +28,7 @@ const PAGE_SIZE = 48;
 export default function Catalog() {
   const showToast = useToast();
   const cart = useCart(showToast);
+  const { preference: deliveryPreference, setPickup, setDelivery } = useDeliveryPreference();
 
   useMeta({
     title: 'Ferretería Garachena - Catálogo Profesional de Pinturas y Herramientas',
@@ -214,6 +216,9 @@ export default function Catalog() {
         searchOpen={searchOpen}
         onSelectResult={handleSelectSearchResult}
         onCloseSearch={() => setSearchOpen(false)}
+        deliveryPreference={deliveryPreference}
+        onSetPickup={setPickup}
+        onSetDelivery={setDelivery}
       />
 
       <Hero
@@ -257,7 +262,15 @@ export default function Catalog() {
       <Footer />
       <WhatsappButton />
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} onCheckout={handleCheckout} />
+      <CartDrawer
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        cart={cart}
+        onCheckout={handleCheckout}
+        deliveryPreference={deliveryPreference}
+        onSetPickup={setPickup}
+        onSetDelivery={setDelivery}
+      />
 
       <CheckoutModal
         open={checkoutOpen}
@@ -265,6 +278,7 @@ export default function Catalog() {
         cartItems={cart.items}
         onSuccess={handleCheckoutSuccess}
         onStockConflict={handleStockConflict}
+        deliveryPreference={deliveryPreference}
       />
 
       <SuccessModal order={successOrder} onClose={() => setSuccessOrder(null)} />

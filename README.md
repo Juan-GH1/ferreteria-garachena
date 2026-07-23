@@ -79,3 +79,22 @@ segmento B2B (maestros y constructoras):
    descargable desde el carrito y desde el checkout.
 
 Ver el detalle técnico de cada una en `frontend/README.md`.
+
+## Sprint: Motores Enterprise (Precios por Volumen y Logística Omnicanal)
+
+Dos motores orientados a la madurez comercial y logística del segmento B2B:
+
+1. **Precios por tramos de volumen** (`frontend/src/utils/pricing.js`,
+   `backend/src/utils/pricing.js`): descuento automático según la cantidad
+   comprada (1-4 unidades: 0%, 5-19: 10%, 20+: 18%), con una mini-tabla de
+   ahorro en la ficha de producto y reflejado en el carrito y el checkout. El
+   backend recalcula el mismo descuento con el precio real de la BD al crear
+   la orden — nunca confía en un precio o descuento enviado por el cliente.
+2. **Logística omnicanal** (`DeliveryLocationSelector.jsx`,
+   `useDeliveryPreference.js`, `frontend/src/utils/delivery.js`): selector de
+   Retiro Gratis en Tienda (Providencia/Vitacura) o Despacho Express Sector
+   Oriente (Providencia, Vitacura, Las Condes, Lo Barnechea), con insignias
+   dinámicas de tiempo estimado (retiro: "listo hoy en 30 mins"; despacho:
+   "Entrega Hoy" antes de las 14:00 corte horario, o "mañana" después).
+
+Ver el detalle técnico de cada uno en `frontend/README.md`.

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { computeLineTotal } from '../utils/pricing';
 
 const CART_STORAGE_KEY = 'garachena_cart';
 
@@ -24,7 +25,10 @@ export function useCart(showToast) {
   }, [items]);
 
   const totalQty = useMemo(() => items.reduce((sum, item) => sum + item.qty, 0), [items]);
-  const totalPrice = useMemo(() => items.reduce((sum, item) => sum + item.qty * item.price, 0), [items]);
+  // Precio por tramos de volumen (ver utils/pricing.js): el descuento se
+  // calcula a partir de item.price (precio base, nunca mutado) y la cantidad
+  // actual, así el total siempre queda correcto sin importar cómo cambie qty.
+  const totalPrice = useMemo(() => items.reduce((sum, item) => sum + computeLineTotal(item.price, item.qty).lineTotal, 0), [items]);
 
   const add = useCallback(
     (product) => {

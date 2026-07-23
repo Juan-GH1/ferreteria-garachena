@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ShoppingCart, PhoneCall } from 'lucide-react';
 import { formatPrice } from '../utils/format';
+import DeliveryLocationSelector from './DeliveryLocationSelector';
 
 function GarachenaLogo() {
   return (
@@ -27,7 +28,20 @@ function CartBadge({ count, className }) {
  * bloque de 2 filas con borde inferior de la versión anterior. La lógica de
  * búsqueda/dropdown/carrito es exactamente la misma, solo cambia el chrome.
  */
-export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQueryChange, searchResults, searchApproximate, searchOpen, onSelectResult, onCloseSearch }) {
+export default function Header({
+  cartCount,
+  onOpenCart,
+  searchQuery,
+  onSearchQueryChange,
+  searchResults,
+  searchApproximate,
+  searchOpen,
+  onSelectResult,
+  onCloseSearch,
+  deliveryPreference,
+  onSetPickup,
+  onSetDelivery,
+}) {
   const searchBoxRef = useRef(null);
 
   useEffect(() => {
@@ -95,6 +109,13 @@ export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQue
             </div>
           )}
         </div>
+
+        <DeliveryLocationSelector
+          preference={deliveryPreference}
+          onSetPickup={onSetPickup}
+          onSetDelivery={onSetDelivery}
+          className="hidden md:block shrink-0"
+        />
 
         <div className="hidden lg:flex items-center gap-2.5 text-xs text-neutral-500 shrink-0 pr-1 border-r border-neutral-200 mr-0.5">
           <PhoneCall className="w-4 h-4 text-neutral-400" />
