@@ -133,7 +133,7 @@ export default function ProductImage({ product, className = '', loading = 'lazy'
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className={`relative overflow-hidden ${className}`}
+      className={`relative overflow-hidden group-hover:scale-105 transition-transform duration-300 ${className}`}
     >
       {isPaintCategory(product.category) ? (
         <PaintCanIllustration seed={seed} />

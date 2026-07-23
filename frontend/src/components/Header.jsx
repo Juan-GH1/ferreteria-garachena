@@ -5,7 +5,7 @@ import { formatPrice } from '../utils/format';
 
 function GarachenaLogo() {
   return (
-    <svg className="w-10 h-10 text-brand-blue" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="w-8 h-8 text-neutral-900 shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="50" cy="50" r="46" stroke="currentColor" strokeWidth="4" />
       <circle cx="50" cy="50" r="42" stroke="currentColor" strokeWidth="1" />
       <path d="M26 20 V80 H38 V20 Z" fill="currentColor" />
@@ -21,6 +21,12 @@ function CartBadge({ count, className }) {
   return <span className={className}>{count}</span>;
 }
 
+/**
+ * Nav flotante y minimalista (dirección editorial tipo nikola.cl): una sola
+ * fila en todos los breakpoints, cápsula rounded-full con blur, en vez del
+ * bloque de 2 filas con borde inferior de la versión anterior. La lógica de
+ * búsqueda/dropdown/carrito es exactamente la misma, solo cambia el chrome.
+ */
 export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQueryChange, searchResults, searchApproximate, searchOpen, onSelectResult, onCloseSearch }) {
   const searchBoxRef = useRef(null);
 
@@ -35,51 +41,35 @@ export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQue
   }, [onCloseSearch]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row items-center justify-between gap-4">
-        <div className="flex items-center justify-between w-full lg:w-auto">
-          <Link to="/" className="flex items-center gap-3">
-            <GarachenaLogo />
-            <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tight text-brand-dark leading-none">
-                GARA<span className="text-brand-blue">CHENA</span>
-              </span>
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Ferretería Profesional</span>
-            </div>
-          </Link>
+    <header className="sticky top-3 z-50 px-3 sm:px-4">
+      <div className="max-w-6xl mx-auto flex items-center gap-2.5 sm:gap-4 rounded-full bg-white/80 backdrop-blur-md border border-neutral-200/50 shadow-sm px-3 sm:px-5 py-2.5">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <GarachenaLogo />
+          <span className="hidden sm:block text-[15px] font-semibold tracking-tight text-neutral-900 leading-none">
+            GARA<span className="text-brand-blue">CHENA</span>
+          </span>
+        </Link>
 
-          <button
-            type="button"
-            onClick={onOpenCart}
-            className="relative p-2 text-slate-600 hover:text-brand-blue lg:hidden"
-            title="Ver carrito"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            <CartBadge
-              count={cartCount}
-              className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center"
-            />
-          </button>
-        </div>
-
-        <div ref={searchBoxRef} className="relative w-full lg:max-w-xl">
+        <div ref={searchBoxRef} className="relative flex-1 min-w-0">
           <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(event) => onSearchQueryChange(event.target.value)}
               placeholder="¿Qué herramienta o pintura buscas hoy?..."
-              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-sm font-medium"
+              className="w-full pl-10 pr-3 py-2 bg-neutral-100 border-0 rounded-full text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white transition-colors text-[13px] sm:text-sm font-medium"
             />
-            <Search className="absolute left-4 top-3 text-slate-400 w-5 h-5" />
           </div>
           {searchOpen && (
-            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
+            <div className="absolute left-0 right-0 mt-2 bg-white border border-neutral-200/70 rounded-2xl shadow-lift overflow-hidden z-50">
               {searchApproximate && searchResults.length > 0 && (
-                <p className="px-3 py-1.5 text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-100">
+                <p className="px-3.5 py-1.5 text-[11px] font-medium text-amber-700 bg-amber-50 border-b border-amber-100">
                   Mostrando resultados aproximados para “{searchQuery.trim()}”
                 </p>
               )}
+              {/* divide-slate-100 (no divide-neutral-100): la suite E2E depende de este selector exacto
+                  (ul.divide-y.divide-slate-100) para el dropdown de búsqueda; el tono es casi idéntico a neutral-100. */}
               <ul className="text-sm divide-y divide-slate-100">
                 {searchResults.length ? (
                   searchResults.map((product) => (
@@ -87,48 +77,45 @@ export default function Header({ cartCount, onOpenCart, searchQuery, onSearchQue
                       <button
                         type="button"
                         onClick={() => onSelectResult(product)}
-                        className="w-full text-left p-3 flex items-center justify-between gap-3 hover:bg-brand-blueLight transition-colors"
+                        className="w-full text-left px-3.5 py-3 flex items-center justify-between gap-3 hover:bg-neutral-50 transition-colors"
                       >
-                        <span>
-                          <span className="block font-bold text-slate-700">{product.name}</span>
-                          <span className="block text-xs text-slate-400">{product.category}</span>
+                        <span className="min-w-0">
+                          {/* font-bold (no font-medium): la suite E2E lee este nombre vía el selector span.font-bold */}
+                          <span className="block font-bold text-neutral-800 truncate">{product.name}</span>
+                          <span className="block text-xs text-neutral-400">{product.category}</span>
                         </span>
-                        <span className="font-black text-brand-blue text-sm shrink-0">{formatPrice(product.price)}</span>
+                        <span className="font-semibold text-brand-blue text-sm shrink-0">{formatPrice(product.price)}</span>
                       </button>
                     </li>
                   ))
                 ) : (
-                  <li className="p-4 text-slate-400 text-center text-sm">Sin resultados</li>
+                  <li className="p-4 text-neutral-400 text-center text-sm">Sin resultados</li>
                 )}
               </ul>
             </div>
           )}
         </div>
 
-        <div className="hidden lg:flex items-center gap-6">
-          <div className="flex items-center gap-3 text-xs border-r border-slate-200 pr-6">
-            <div className="text-right">
-              <p className="font-bold text-slate-700">Servicio al Cliente</p>
-              <p className="text-brand-blue font-semibold">Providencia &amp; Vitacura</p>
-            </div>
-            <div className="bg-brand-blueLight p-2 rounded-xl text-brand-blue">
-              <PhoneCall className="w-5 h-5" />
-            </div>
+        <div className="hidden lg:flex items-center gap-2.5 text-xs text-neutral-500 shrink-0 pr-1 border-r border-neutral-200 mr-0.5">
+          <PhoneCall className="w-4 h-4 text-neutral-400" />
+          <div className="pr-3">
+            <p className="font-medium text-neutral-700 leading-tight">Servicio al Cliente</p>
+            <p className="text-neutral-400 leading-tight">Providencia &amp; Vitacura</p>
           </div>
-
-          <button
-            type="button"
-            onClick={onOpenCart}
-            className="relative bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
-            title="Ver carrito"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            <CartBadge
-              count={cartCount}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center font-bold border-2 border-white"
-            />
-          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={onOpenCart}
+          className="relative shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 hover:bg-neutral-800 text-white transition-colors"
+          title="Ver carrito"
+        >
+          <ShoppingCart className="w-4 h-4" />
+          <CartBadge
+            count={cartCount}
+            className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-brand-blue text-white rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white"
+          />
+        </button>
       </div>
     </header>
   );

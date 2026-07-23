@@ -5,6 +5,10 @@
  * - brand-blue se mantiene como color primario de acciones (azul del logo).
  * - navy: azul marino profundo para superficies oscuras (header/footer/hero).
  * - accent: ámbar cálido para acentos puntuales (badges, focos de atención).
+ * - ink/surface: neutros del sistema editorial (dirección de arte tipo
+ *   nikola.cl) usados en Header/Hero/CategoryGrid/ProductCard/Catalog. Se
+ *   agregan como tokens adicionales (no reemplazan navy/brand-*) para no
+ *   afectar componentes fuera de ese rediseño (admin, footer, etc.).
  * - Sombras multinivel: soft (reposo), card (tarjetas), lift (hover/flotantes).
  */
 @theme {
@@ -20,6 +24,10 @@
 
   --color-accent-400: #fbbf24;
   --color-accent-500: #f59e0b;
+
+  --color-ink-900: #171718;
+  --color-ink-950: #0d0d0e;
+  --color-surface-50: #f8f9fa;
 
   --shadow-soft: 0 8px 30px rgb(0 0 0 / 0.04);
   --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px rgb(15 23 42 / 0.06);

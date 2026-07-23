@@ -18,12 +18,12 @@ export default function TrustBadges() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.05, duration: 0.3 }}
-          className="flex items-center gap-3 bg-white rounded-2xl shadow-soft ring-1 ring-slate-900/5 px-4 py-3.5"
+          className="flex items-center gap-3 bg-white rounded-2xl border border-neutral-100 px-4 py-3.5"
         >
-          <span className="w-9 h-9 rounded-xl bg-brand-blueLight text-brand-blue flex items-center justify-center shrink-0">
+          <span className="w-9 h-9 rounded-full bg-brand-blueLight text-brand-blue flex items-center justify-center shrink-0">
             <badge.icon className="w-4.5 h-4.5" />
           </span>
-          <span className="text-[12px] font-bold tracking-tight text-navy-900 leading-tight">{badge.label}</span>
+          <span className="text-[12px] font-semibold tracking-tight text-neutral-900 leading-tight">{badge.label}</span>
         </motion.div>
       ))}
     </div>

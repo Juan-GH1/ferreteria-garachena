@@ -199,8 +199,8 @@ export default function Catalog() {
   }
 
   return (
-    <div className="bg-brand-light text-slate-800 font-sans antialiased flex flex-col min-h-screen">
-      <div className="bg-gradient-to-r from-navy-950 via-navy-900 to-navy-950 text-white/90 text-[11px] py-2 px-4 text-center font-semibold tracking-wide">
+    <div className="bg-surface-50 text-neutral-800 font-sans antialiased flex flex-col min-h-screen">
+      <div className="bg-ink-950 text-white/80 text-[11px] py-2 px-4 text-center font-medium tracking-wide">
         🚚 Despacho Express en Santiago · Retiro en tienda en Providencia y Vitacura
       </div>
 

@@ -55,30 +55,54 @@ tests/e2e/                       # suite E2E con @playwright/test (ver más abaj
 playwright.config.js
 ```
 
+### Sistema de diseño editorial (Header/Hero/CategoryGrid/ProductCard/Catalog)
+
+Dirección de arte minimalista y editorial (inspirada en nikola.cl): neutros
+profundos (`--color-ink-950: #0d0d0e`) y superficies claras
+(`--color-surface-50: #f8f9fa`, tokens en `index.css`, agregados sin tocar
+`navy-*`/`brand-*` para no afectar componentes fuera de este rediseño, p. ej.
+el panel admin). Tipografía `tracking-tight` con pesos `font-medium`/
+`font-semibold` en vez de `font-black`, bordes finos `border-neutral-100/200`
+en vez de sombras pesadas, y animaciones Framer Motion con `ease: 'easeOut'`
+en vez de springs para las transiciones de layout.
+
+- **`Header.jsx`**: nav flotante de una sola fila en todos los breakpoints —
+  `rounded-full bg-white/80 backdrop-blur-md border border-neutral-200/50`.
+  Buscador y carrito son exactamente la misma lógica de antes, solo cambia el
+  chrome.
+- **`ProductCard.jsx`**: borde fino, sin sombra pesada; un único badge de
+  disponibilidad flotante sobre la imagen (reemplaza las 2 pills de
+  sucursal); el whileHover ya no escala/levanta toda la tarjeta, solo la
+  imagen hace zoom sutil (`group-hover:scale-105`, también aplicado al
+  fallback vectorial en `ProductImage.jsx` para los productos sin foto real).
+- **`CategoryGrid.jsx`**: mismo fondo neutro desaturado en las 4 categorías
+  (antes cada una tenía un tinte de color distinto); el conteo/disponibilidad
+  sigue siendo `aria-hidden` para que el nombre accesible del botón siga
+  siendo solo la categoría (p. ej. "Pinturas"), tanto para lectores de
+  pantalla como para que los selectores de Playwright
+  (`getByRole('button', { name: 'Pinturas', exact: true })`) sigan
+  funcionando.
+
 ### Homepage: switcher B2C/B2B
 
 No existe un `Home.jsx` separado: la landing vive en `Catalog.jsx` (que también
 maneja el carrito, la búsqueda y los filtros de la página "/"), compuesta por
 varias secciones:
 
-1. **`Hero.jsx`**: switcher "Proyectos del Hogar" / "Contratistas y
-   Constructoras" con un indicador animado (`layoutId`, mismo patrón que
-   `AdminSidebar`). En modo B2B cambia el copy, destaca el botón "Generar
-   Cotización en PDF" (abre `B2BQuoteModal` con el carrito actual) y agrega
-   una búsqueda rápida por código SKU sobre el catálogo ya cargado por
-   `Catalog.jsx` (sin pegarle otra vez al backend).
-2. **`QuickToolsHub.jsx`**: 3 tarjetas bento que flotan sobre el borde del
-   Hero — Calculadora de Pintura (abre `PaintCalculatorModal` sin producto
-   vinculado), Cotizador B2B Express (abre `B2BQuoteModal`) y una tarjeta
-   informativa de cobertura de despacho.
+1. **`Hero.jsx`**: composición asimétrica (texto + panel de estadísticas
+   reales del catálogo desplazado) sobre fondo `ink-950`. Switcher "Proyectos
+   del Hogar" / "Contratistas y Constructoras" con un indicador animado
+   (`layoutId`, mismo patrón que `AdminSidebar`). En modo B2B cambia el copy,
+   destaca el botón "Generar Cotización en PDF" (abre `B2BQuoteModal` con el
+   carrito actual) y agrega una búsqueda rápida por código SKU sobre el
+   catálogo ya cargado por `Catalog.jsx` (sin pegarle otra vez al backend).
+2. **`QuickToolsHub.jsx`**: píldoras de acción flotantes (`rounded-full
+   shadow-sm border-neutral-200`) sobre el borde del Hero — Calculadora de
+   Pintura (abre `PaintCalculatorModal` sin producto vinculado), Cotizador
+   B2B Express (abre `B2BQuoteModal`) y una píldora informativa de cobertura
+   de despacho.
 3. **`TrustBadges.jsx`**: 4 badges de garantía ferretera.
-4. **`CategoryGrid.jsx`**: bento de categorías con conteo real de productos y
-   una etiqueta "En stock" (`facets.categories` de `Catalog.jsx`, no números
-   hardcodeados) y un efecto de blob líquido en hover. El conteo/disponibilidad
-   se marca `aria-hidden` para que el nombre accesible del botón siga siendo
-   solo la categoría (p. ej. "Pinturas"), tanto para lectores de pantalla como
-   para que los selectores de Playwright (`getByRole('button', { name: 'Pinturas', exact: true })`)
-   sigan funcionando.
+4. **`CategoryGrid.jsx`**: ver sección de sistema de diseño arriba.
 
 ### ProductImage: fallback vectorial inteligente
 
