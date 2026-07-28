@@ -1,0 +1,27 @@
+{
+  "name": "ferreteria-garachena-backend",
+  "version": "1.0.0",
+  "description": "API backend de Ferretería Garachena (catálogo, búsqueda y stock por sucursal)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "db:init": "node src/db/init.js",
+    "db:seed": "node src/db/seed.js",
+    "db:import:pinturas": "node scripts/import-familia-pinturas.js",
+    "db:seed:stock": "node scripts/seedStock.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "csv-parse": "^7.0.1",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "multer": "^2.2.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

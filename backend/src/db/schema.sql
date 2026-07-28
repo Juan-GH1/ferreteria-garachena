@@ -1,0 +1,69 @@
+-- Esquema relacional de Ferretería Garachena
+-- Compatible con SQLite (local) y fácilmente portable a PostgreSQL.
+
+CREATE TABLE IF NOT EXISTS branches (
+  id   INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  sku           TEXT,
+  internal_code TEXT,
+  name          TEXT NOT NULL,
+  description   TEXT,
+  price         INTEGER NOT NULL,
+  category      TEXT NOT NULL,
+  brand         TEXT,
+  image_url     TEXT,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- SKU es el código con el que Sisgen identifica el producto en las cargas
+-- masivas; puede ser NULL para productos cargados manualmente (no vía import).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku ON products(sku) WHERE sku IS NOT NULL;
+
+-- Stock diferenciado por sucursal: una fila por combinación producto/sucursal.
+CREATE TABLE IF NOT EXISTS inventory (
+  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  branch_id  INTEGER NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
+  stock      INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (product_id, branch_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_name       TEXT NOT NULL,
+  rut                 TEXT NOT NULL,
+  email               TEXT NOT NULL,
+  phone               TEXT NOT NULL,
+  delivery_type       TEXT NOT NULL,
+  total_amount        INTEGER NOT NULL,
+  -- Pipeline de gestión del panel admin: pendiente -> despachado -> entregado.
+  status              TEXT NOT NULL DEFAULT 'pendiente',
+  -- Documento tributario: 'boleta' (default) o 'factura'. Los campos billing_*
+  -- solo se llenan cuando document_type = 'factura'.
+  document_type       TEXT NOT NULL DEFAULT 'boleta',
+  billing_rut         TEXT,
+  billing_razon_social TEXT,
+  billing_giro        TEXT,
+  billing_address     TEXT,
+  created_at          TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Detalle de cada orden. branch_deducted registra de qué sucursal se descontó
+-- el stock para ese ítem, según la regla de negocio aplicada en el checkout.
+CREATE TABLE IF NOT EXISTS order_items (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id        INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  product_id      INTEGER NOT NULL REFERENCES products(id),
+  quantity        INTEGER NOT NULL,
+  price           INTEGER NOT NULL,
+  branch_deducted TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
