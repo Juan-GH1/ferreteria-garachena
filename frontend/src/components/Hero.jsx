@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Building2, FileText, Home as HomeIcon, ScanBarcode, Truck, Wrench } from 'lucide-react';
+import { ArrowRight, Building2, FileText, Home as HomeIcon, ScanBarcode, Store, Truck } from 'lucide-react';
 import { formatPrice } from '../utils/format';
 
 const EASE = { duration: 0.35, ease: 'easeOut' };
@@ -15,7 +15,7 @@ const MODE_OPTIONS = [
 /** Switcher B2C/B2B con indicador animado (mismo patrón que AdminSidebar). */
 function ModeToggle({ mode, onChange }) {
   return (
-    <div className="inline-flex items-center bg-white/10 rounded-full p-1 ring-1 ring-inset ring-white/15 gap-1">
+    <div className="inline-flex items-center bg-white/10 rounded-full p-1.5 ring-1 ring-inset ring-white/15 gap-1">
       {MODE_OPTIONS.map((opt) => {
         const active = mode === opt.value;
         return (
@@ -24,7 +24,8 @@ function ModeToggle({ mode, onChange }) {
             type="button"
             onClick={() => onChange(opt.value)}
             aria-pressed={active}
-            className="relative px-3.5 py-2 rounded-full text-[11px] sm:text-[12px] font-medium tracking-tight flex items-center gap-1.5"
+            /* min-h-11 (44px): área táctil mínima recomendada para el switcher B2C/B2B */
+            className="group relative px-4 min-h-11 rounded-full text-[11px] sm:text-[12px] font-medium tracking-tight flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             {active && (
               <motion.span
@@ -33,8 +34,12 @@ function ModeToggle({ mode, onChange }) {
                 className="absolute inset-0 bg-white rounded-full -z-10"
               />
             )}
-            <opt.icon className={`w-3.5 h-3.5 relative z-10 shrink-0 ${active ? 'text-ink-950' : 'text-white/60'}`} />
-            <span className={`relative z-10 whitespace-nowrap ${active ? 'text-ink-950' : 'text-white/60'}`}>{opt.label}</span>
+            <opt.icon
+              className={`w-3.5 h-3.5 relative z-10 shrink-0 ${active ? 'text-ink-950' : 'text-white/70 group-hover:text-white/90'}`}
+            />
+            <span className={`relative z-10 whitespace-nowrap ${active ? 'text-ink-950' : 'text-white/70 group-hover:text-white/90'}`}>
+              {opt.label}
+            </span>
           </button>
         );
       })}
@@ -116,23 +121,33 @@ function StatsPanel({ productsCount }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...EASE, delay: 0.15 }}
-      className="w-full max-w-sm lg:-mt-10 bg-white/[0.04] border border-white/10 rounded-3xl p-8 backdrop-blur-sm"
+      className="w-full max-w-sm lg:-mt-10 bg-white/[0.04] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-sm"
     >
       <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-medium">Catálogo en tiempo real</p>
-      <p className="mt-3 text-5xl font-semibold tracking-tight text-white tabular-nums">
+      <p className="mt-3 text-4xl sm:text-5xl font-semibold tracking-tight text-white tabular-nums">
         {productsCount > 0 ? countFormatter.format(productsCount) : '—'}
       </p>
       <p className="mt-1.5 text-[13px] text-white/50 leading-relaxed">
         productos con stock verificado en Providencia y Vitacura
       </p>
-      <div className="mt-7 pt-6 border-t border-white/10 grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-2xl font-semibold text-white tabular-nums">24h</p>
-          <p className="text-[11px] text-white/40 mt-0.5">Despacho sector oriente</p>
+      <div className="mt-6 sm:mt-7 pt-5 sm:pt-6 border-t border-white/10 grid grid-cols-2 gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="w-8 h-8 rounded-full bg-accent-400/15 text-accent-400 flex items-center justify-center shrink-0">
+            <Truck className="w-4 h-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-xl font-semibold text-white tabular-nums leading-none">24h</p>
+            <p className="text-[10px] sm:text-[11px] text-white/40 mt-1 leading-tight">Sector oriente</p>
+          </div>
         </div>
-        <div>
-          <p className="text-2xl font-semibold text-white tabular-nums">2</p>
-          <p className="text-[11px] text-white/40 mt-0.5">Sucursales activas</p>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="w-8 h-8 rounded-full bg-accent-400/15 text-accent-400 flex items-center justify-center shrink-0">
+            <Store className="w-4 h-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-xl font-semibold text-white tabular-nums leading-none">2</p>
+            <p className="text-[10px] sm:text-[11px] text-white/40 mt-1 leading-tight">Providencia · Vitacura</p>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -147,7 +162,7 @@ function StatsPanel({ productsCount }) {
  * contiene el simulador (ver PaintSimulator, reubicado más abajo en
  * Catalog.jsx) para no bloquear el acceso al catálogo.
  */
-export default function Hero({ onViewCatalog, onBrowseTools, onOpenQuote, products = [] }) {
+export default function Hero({ onViewCatalog, onOpenQuote, products = [] }) {
   const [mode, setMode] = useState('b2c');
   const navigate = useNavigate();
   const isB2B = mode === 'b2b';
@@ -195,7 +210,7 @@ export default function Hero({ onViewCatalog, onBrowseTools, onOpenQuote, produc
                       whileTap={{ scale: 0.97 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                       onClick={onOpenQuote}
-                      className="inline-flex items-center gap-2 bg-white text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-sm"
+                      className="inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-[0_8px_24px_-6px_rgba(245,158,11,0.5)] transition-colors"
                     >
                       <FileText className="w-4 h-4" /> Generar Cotización en PDF
                     </motion.button>
@@ -218,7 +233,7 @@ export default function Hero({ onViewCatalog, onBrowseTools, onOpenQuote, produc
                       whileTap={{ scale: 0.97 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                       onClick={onViewCatalog}
-                      className="inline-flex items-center gap-2 bg-white text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-sm"
+                      className="inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-[0_8px_24px_-6px_rgba(245,158,11,0.5)] transition-colors"
                     >
                       Ver Catálogo <ArrowRight className="w-4 h-4" />
                     </motion.button>
@@ -227,10 +242,10 @@ export default function Hero({ onViewCatalog, onBrowseTools, onOpenQuote, produc
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
-                      onClick={onBrowseTools}
+                      onClick={onOpenQuote}
                       className="inline-flex items-center gap-2 bg-transparent text-white font-medium tracking-tight px-6 py-3.5 rounded-full border border-white/20 hover:border-white/40 transition-colors"
                     >
-                      <Wrench className="w-4 h-4" /> Herramientas
+                      <FileText className="w-4 h-4" /> Cotizar mi Proyecto
                     </motion.button>
                   </div>
                 )}

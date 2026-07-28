@@ -221,12 +221,7 @@ export default function Catalog() {
         onSetDelivery={setDelivery}
       />
 
-      <Hero
-        onViewCatalog={scrollToCatalog}
-        onBrowseTools={() => handleCategoryShortcut(['Herramientas Manuales'])}
-        onOpenQuote={() => setHomeQuoteOpen(true)}
-        products={products}
-      />
+      <Hero onViewCatalog={scrollToCatalog} onOpenQuote={() => setHomeQuoteOpen(true)} products={products} />
 
       <div className="max-w-7xl mx-auto px-4 -mt-14 relative z-10 space-y-8">
         <QuickToolsHub onOpenCalculator={() => setHomeCalculatorOpen(true)} onOpenQuote={() => setHomeQuoteOpen(true)} />
