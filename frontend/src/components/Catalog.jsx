@@ -15,6 +15,8 @@ import CategoryGrid from './CategoryGrid';
 import Sidebar from './Sidebar';
 import PaintSimulator from './PaintSimulator';
 import ProductGrid from './ProductGrid';
+import AboutSection from './AboutSection';
+import CatalogDownloads from './CatalogDownloads';
 import Footer from './Footer';
 import WhatsappButton from './WhatsappButton';
 import CartDrawer from './CartDrawer';
@@ -253,6 +255,9 @@ export default function Catalog() {
       <section className="max-w-7xl mx-auto px-4 pb-16">
         <PaintSimulator cart={cart} />
       </section>
+
+      <AboutSection />
+      <CatalogDownloads products={products} />
 
       <Footer />
       <WhatsappButton />
