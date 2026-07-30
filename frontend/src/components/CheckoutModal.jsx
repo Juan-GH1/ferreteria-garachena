@@ -163,7 +163,12 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                     {step === 1 ? 'Paso 1 de 2 · Datos y entrega' : 'Paso 2 de 2 · Resumen y pago'}
                   </p>
                 </div>
-                <button type="button" onClick={handleClose} title="Cerrar" className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  title="Cerrar"
+                  className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -252,7 +257,7 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                             key={option.value}
                             type="button"
                             onClick={() => setForm({ ...form, documentType: option.value })}
-                            className={`py-2.5 rounded-xl border-2 text-sm font-bold transition-colors ${
+                            className={`py-2.5 rounded-xl border-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-brand-blue ${
                               form.documentType === option.value
                                 ? 'border-brand-blue bg-brand-blueLight text-brand-blue'
                                 : 'border-slate-200 text-slate-500 hover:border-slate-300'
@@ -331,7 +336,7 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                             <span className="text-slate-600 font-semibold truncate">
                               {item.name} <span className="text-slate-400">×{item.qty}</span>
                               {tier.discount > 0 && (
-                                <span className="ml-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full align-middle">
+                                <span className="ml-1.5 text-10 font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full align-middle">
                                   -{Math.round(tier.discount * 100)}%
                                 </span>
                               )}
@@ -376,7 +381,7 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                     <button
                       type="button"
                       onClick={() => setQuoteOpen(true)}
-                      className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-brand-dark border border-slate-200 hover:border-brand-dark py-2.5 rounded-xl transition-colors"
+                      className="w-full flex items-center justify-center gap-2 text-13 font-bold text-brand-dark border border-slate-200 hover:border-brand-dark py-2.5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-dark"
                     >
                       <FileDown className="w-4 h-4" /> Descargar Cotización B2B (PDF)
                     </button>
@@ -393,7 +398,7 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                         setError('');
                         setStep(1);
                       }}
-                      className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
+                      className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400"
                     >
                       Volver
                     </button>
@@ -402,7 +407,7 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                     <button
                       type="button"
                       onClick={goToStep2}
-                      className="flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors"
+                      className="flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
                     >
                       Continuar
                     </button>
@@ -411,7 +416,7 @@ export default function CheckoutModal({ open, onClose, cartItems, onSuccess, onS
                       type="button"
                       onClick={submitOrder}
                       disabled={submitting}
-                      className="flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors disabled:opacity-60"
+                      className="flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
                     >
                       {submitting ? 'Procesando...' : 'Confirmar Pedido (Simular Pago)'}
                     </button>

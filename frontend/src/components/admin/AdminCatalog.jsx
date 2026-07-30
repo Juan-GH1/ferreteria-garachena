@@ -92,7 +92,7 @@ export default function AdminCatalog() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-50 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <tr className="bg-slate-50 text-left text-2xs font-bold text-slate-400 uppercase tracking-wider">
                   <th className="px-5 py-3">Producto</th>
                   <th className="px-5 py-3">SKU</th>
                   <th className="px-5 py-3">Categoría</th>

@@ -100,7 +100,7 @@ function SampleRoom({ color }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="absolute top-4 left-4 bg-white/85 backdrop-blur-md text-[11px] font-bold tracking-tight text-slate-800 px-3 py-1.5 rounded-full shadow-card"
+          className="absolute top-4 left-4 bg-white/85 backdrop-blur-md text-2xs font-bold tracking-tight text-slate-800 px-3 py-1.5 rounded-full shadow-card"
         >
           {color.name}
         </motion.div>
@@ -116,8 +116,8 @@ function FeatureTile({ icon: Icon, title, caption }) {
         <Icon className="w-5 h-5" />
       </div>
       <div className="min-w-0">
-        <p className="text-[13px] font-bold tracking-tight text-slate-900 leading-tight">{title}</p>
-        <p className="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">{caption}</p>
+        <p className="text-13 font-bold tracking-tight text-slate-900 leading-tight">{title}</p>
+        <p className="text-2xs text-slate-400 font-medium leading-tight mt-0.5">{caption}</p>
       </div>
     </div>
   );
@@ -137,11 +137,11 @@ function BuyLinkedProductButton({ product }) {
       whileTap={{ scale: 0.98 }}
       transition={SPRING}
       onClick={() => navigate(`/producto/${product.id}`)}
-      className="mt-4 w-full flex items-center justify-between gap-3 bg-brand-blue hover:bg-brand-blueDark text-white rounded-xl px-4 py-3 shadow-md shadow-brand-blue/20 hover:shadow-lg hover:shadow-brand-blue/30 transition-all duration-300"
+      className="mt-4 w-full flex items-center justify-between gap-3 bg-brand-blue hover:bg-brand-blueDark text-white rounded-xl px-4 py-3 shadow-md shadow-brand-blue/20 hover:shadow-lg hover:shadow-brand-blue/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
     >
       <span className="text-left min-w-0">
-        <span className="block text-[13px] font-bold tracking-tight">{label}</span>
-        <span className="block text-[11px] text-white/75 truncate">
+        <span className="block text-13 font-bold tracking-tight">{label}</span>
+        <span className="block text-2xs text-white/75 truncate">
           {product.name} · {formatPrice(product.price)}
         </span>
       </span>
@@ -157,7 +157,7 @@ function CalculatorButton({ disabled, onClick }) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="mt-2.5 w-full flex items-center justify-center gap-2 text-[12px] font-bold text-brand-blue hover:bg-brand-blueLight py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      className="mt-2.5 w-full flex items-center justify-center gap-2 text-xs font-bold text-brand-blue hover:bg-brand-blueLight py-2.5 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-brand-blue"
     >
       <Calculator className="w-3.5 h-3.5" /> ¿Cuánta pintura necesito? Calcula por m²
     </button>

@@ -23,7 +23,7 @@ export default function TrustBadges() {
           <span className="w-9 h-9 rounded-full bg-brand-blueLight text-brand-blue flex items-center justify-center shrink-0">
             <badge.icon className="w-4.5 h-4.5" />
           </span>
-          <span className="text-[12px] font-semibold tracking-tight text-neutral-900 leading-tight">{badge.label}</span>
+          <span className="text-xs font-semibold tracking-tight text-neutral-900 leading-tight">{badge.label}</span>
         </motion.div>
       ))}
     </div>

@@ -28,7 +28,11 @@ export default function ProductGrid({
             Mostrando <span className="text-brand-blue">{loading ? '...' : countLabel}</span>
           </p>
           {isFiltered && (
-            <button type="button" onClick={onClearFilter} className="text-xs font-bold text-brand-blue hover:underline">
+            <button
+              type="button"
+              onClick={onClearFilter}
+              className="text-xs font-bold text-brand-blue hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 rounded"
+            >
               Ver todo el catálogo
             </button>
           )}
@@ -51,7 +55,11 @@ export default function ProductGrid({
               {filtersActive ? 'Ningún producto coincide con los filtros seleccionados.' : 'No se encontraron productos.'}
             </p>
             {filtersActive && (
-              <button type="button" onClick={onClearFilters} className="text-sm font-bold text-brand-blue hover:underline">
+              <button
+                type="button"
+                onClick={onClearFilters}
+                className="text-sm font-bold text-brand-blue hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 rounded"
+              >
                 Limpiar filtros
               </button>
             )}
@@ -72,7 +80,7 @@ export default function ProductGrid({
           <button
             type="button"
             onClick={onShowMore}
-            className="px-6 py-3 rounded-xl border-2 border-brand-blue text-brand-blue font-bold text-sm hover:bg-brand-blueLight transition-colors"
+            className="px-6 py-3 rounded-xl border-2 border-brand-blue text-brand-blue font-bold text-sm hover:bg-brand-blueLight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
           >
             Mostrar más ({matchCount - products.length} restantes)
           </button>

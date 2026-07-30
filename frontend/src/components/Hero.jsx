@@ -8,8 +8,8 @@ const EASE = { duration: 0.35, ease: 'easeOut' };
 const countFormatter = new Intl.NumberFormat('es-CL');
 
 const MODE_OPTIONS = [
-  { value: 'b2c', label: 'Proyectos del Hogar', icon: HomeIcon },
-  { value: 'b2b', label: 'Contratistas y Constructoras', icon: Building2 },
+  { value: 'b2c', label: 'Proyectos del Hogar', shortLabel: 'Hogar', icon: HomeIcon },
+  { value: 'b2b', label: 'Contratistas y Constructoras', shortLabel: 'Empresas', icon: Building2 },
 ];
 
 /** Switcher B2C/B2B con indicador animado (mismo patrón que AdminSidebar). */
@@ -24,8 +24,14 @@ function ModeToggle({ mode, onChange }) {
             type="button"
             onClick={() => onChange(opt.value)}
             aria-pressed={active}
-            /* min-h-11 (44px): área táctil mínima recomendada para el switcher B2C/B2B */
-            className="group relative px-4 min-h-11 rounded-full text-[11px] sm:text-[12px] font-medium tracking-tight flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            /*
+             * min-h-11 (44px): área táctil mínima recomendada para el switcher B2C/B2B.
+             * isolate: sin esto, el -z-10 de la píldora activa (abajo) se compara contra
+             * el stacking context del motion.div ancestro (Framer Motion le aplica
+             * `transform`, que crea uno) en vez de quedar contenido en este botón, y la
+             * píldora blanca terminaba pintándose invisible detrás de otro contenido.
+             */
+            className="group relative isolate px-4 min-h-11 rounded-full text-2xs sm:text-xs font-medium tracking-tight flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             {active && (
               <motion.span
@@ -38,7 +44,10 @@ function ModeToggle({ mode, onChange }) {
               className={`w-3.5 h-3.5 relative z-10 shrink-0 ${active ? 'text-ink-950' : 'text-white/70 group-hover:text-white/90'}`}
             />
             <span className={`relative z-10 whitespace-nowrap ${active ? 'text-ink-950' : 'text-white/70 group-hover:text-white/90'}`}>
-              {opt.label}
+              {/* Debajo de sm el label completo ("Contratistas y Constructoras") no cabe
+                  ni en 320px junto al otro pill: se usa una versión corta en mobile. */}
+              <span className="sm:hidden">{opt.shortLabel}</span>
+              <span className="hidden sm:inline">{opt.label}</span>
             </span>
           </button>
         );
@@ -85,7 +94,7 @@ function SkuQuickSearch({ products, navigate }) {
         />
         <button
           type="submit"
-          className="absolute right-1.5 top-1.5 bottom-1.5 bg-white text-ink-950 text-xs font-semibold px-4 rounded-full hover:bg-neutral-100 transition-colors"
+          className="absolute right-1.5 top-1.5 bottom-1.5 bg-white text-ink-950 text-xs font-semibold px-4 rounded-full hover:bg-neutral-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
         >
           Buscar
         </button>
@@ -98,11 +107,11 @@ function SkuQuickSearch({ products, navigate }) {
               <button
                 type="button"
                 onMouseDown={() => navigate(`/producto/${product.id}`)}
-                className="w-full text-left px-4 py-2.5 hover:bg-neutral-50 transition-colors flex items-center justify-between gap-3"
+                className="w-full text-left px-4 py-2.5 hover:bg-neutral-50 transition-colors flex items-center justify-between gap-3 focus-visible:outline-none focus-visible:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-blue/30"
               >
                 <span className="min-w-0">
-                  <span className="block text-[13px] font-medium text-neutral-800 truncate">{product.name}</span>
-                  <span className="block text-[11px] text-neutral-400 font-mono">{product.sku}</span>
+                  <span className="block text-13 font-medium text-neutral-800 truncate">{product.name}</span>
+                  <span className="block text-2xs text-neutral-400 font-mono">{product.sku}</span>
                 </span>
                 <span className="text-xs font-semibold text-brand-blue shrink-0">{formatPrice(product.price)}</span>
               </button>
@@ -123,11 +132,11 @@ function StatsPanel({ productsCount }) {
       transition={{ ...EASE, delay: 0.15 }}
       className="w-full max-w-sm lg:-mt-10 bg-white/[0.04] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-sm"
     >
-      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-medium">Catálogo en tiempo real</p>
+      <p className="text-10 uppercase tracking-[0.2em] text-white/40 font-medium">Catálogo en tiempo real</p>
       <p className="mt-3 text-4xl sm:text-5xl font-semibold tracking-tight text-white tabular-nums">
         {productsCount > 0 ? countFormatter.format(productsCount) : '—'}
       </p>
-      <p className="mt-1.5 text-[13px] text-white/50 leading-relaxed">
+      <p className="mt-1.5 text-13 text-white/50 leading-relaxed">
         productos con stock verificado en Providencia y Vitacura
       </p>
       <div className="mt-6 sm:mt-7 pt-5 sm:pt-6 border-t border-white/10 grid grid-cols-2 gap-3">
@@ -137,7 +146,7 @@ function StatsPanel({ productsCount }) {
           </span>
           <div className="min-w-0">
             <p className="text-lg sm:text-xl font-semibold text-white tabular-nums leading-none">24h</p>
-            <p className="text-[10px] sm:text-[11px] text-white/40 mt-1 leading-tight">Sector oriente</p>
+            <p className="text-10 sm:text-2xs text-white/40 mt-1 leading-tight">Sector oriente</p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 min-w-0">
@@ -146,7 +155,7 @@ function StatsPanel({ productsCount }) {
           </span>
           <div className="min-w-0">
             <p className="text-lg sm:text-xl font-semibold text-white tabular-nums leading-none">2</p>
-            <p className="text-[10px] sm:text-[11px] text-white/40 mt-1 leading-tight">Providencia · Vitacura</p>
+            <p className="text-10 sm:text-2xs text-white/40 mt-1 leading-tight">Providencia · Vitacura</p>
           </div>
         </div>
       </div>
@@ -178,7 +187,7 @@ export default function Hero({ onViewCatalog, onOpenQuote, products = [] }) {
 
             <AnimatePresence mode="wait">
               <motion.div key={mode} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={EASE}>
-                <p className="mt-7 flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/40 font-medium">
+                <p className="mt-7 flex items-center gap-2 text-2xs uppercase tracking-[0.2em] text-white/40 font-medium">
                   <Truck className="w-3.5 h-3.5" /> {isB2B ? 'Atención preferencial para empresas' : 'Providencia · Vitacura'}
                 </p>
 
@@ -196,7 +205,7 @@ export default function Hero({ onViewCatalog, onOpenQuote, products = [] }) {
                   )}
                 </h1>
 
-                <p className="mt-5 text-[15px] text-white/55 font-normal leading-relaxed max-w-lg">
+                <p className="mt-5 text-15 text-white/55 font-normal leading-relaxed max-w-lg">
                   {isB2B
                     ? 'Cotiza en PDF al instante, compra con factura a tu RUT y coordina despacho prioritario para tu obra o contratista.'
                     : 'Pinturas con tintometría digital, herramientas y materiales de construcción, seleccionados para quienes exigen precisión.'}
@@ -210,7 +219,7 @@ export default function Hero({ onViewCatalog, onOpenQuote, products = [] }) {
                       whileTap={{ scale: 0.97 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                       onClick={onOpenQuote}
-                      className="inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-[0_8px_24px_-6px_rgba(245,158,11,0.5)] transition-colors"
+                      className="inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-[0_8px_24px_-6px_rgba(245,158,11,0.5)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                     >
                       <FileText className="w-4 h-4" /> Generar Cotización en PDF
                     </motion.button>
@@ -220,7 +229,7 @@ export default function Hero({ onViewCatalog, onOpenQuote, products = [] }) {
                       whileTap={{ scale: 0.97 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                       onClick={onViewCatalog}
-                      className="inline-flex items-center gap-2 bg-transparent text-white font-medium tracking-tight px-6 py-3.5 rounded-full border border-white/20 hover:border-white/40 transition-colors"
+                      className="inline-flex items-center gap-2 bg-transparent text-white font-medium tracking-tight px-6 py-3.5 rounded-full border border-white/20 hover:border-white/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                     >
                       Ver Catálogo Completo <ArrowRight className="w-4 h-4" />
                     </motion.button>
@@ -233,7 +242,7 @@ export default function Hero({ onViewCatalog, onOpenQuote, products = [] }) {
                       whileTap={{ scale: 0.97 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                       onClick={onViewCatalog}
-                      className="inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-[0_8px_24px_-6px_rgba(245,158,11,0.5)] transition-colors"
+                      className="inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-ink-950 font-semibold tracking-tight px-6 py-3.5 rounded-full shadow-[0_8px_24px_-6px_rgba(245,158,11,0.5)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                     >
                       Ver Catálogo <ArrowRight className="w-4 h-4" />
                     </motion.button>
@@ -243,7 +252,7 @@ export default function Hero({ onViewCatalog, onOpenQuote, products = [] }) {
                       whileTap={{ scale: 0.97 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                       onClick={onOpenQuote}
-                      className="inline-flex items-center gap-2 bg-transparent text-white font-medium tracking-tight px-6 py-3.5 rounded-full border border-white/20 hover:border-white/40 transition-colors"
+                      className="inline-flex items-center gap-2 bg-transparent text-white font-medium tracking-tight px-6 py-3.5 rounded-full border border-white/20 hover:border-white/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                     >
                       <FileText className="w-4 h-4" /> Cotizar mi Proyecto
                     </motion.button>

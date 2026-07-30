@@ -26,7 +26,7 @@ function NavItem({ to, label, icon: Icon, end }) {
     <NavLink to={to} end={end} className="relative block">
       {({ isActive }) => (
         <span
-          className={`relative z-10 flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-bold tracking-tight transition-colors ${
+          className={`relative z-10 flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold tracking-tight transition-colors ${
             isActive ? 'text-white' : 'text-slate-300 hover:text-white'
           }`}
         >
@@ -62,7 +62,7 @@ function AdminKeyField() {
 
   return (
     <div className="px-3.5">
-      <label htmlFor="admin-api-key" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+      <label htmlFor="admin-api-key" className="text-10 font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
         <KeyRound className="w-3 h-3" /> Clave del servidor
       </label>
       <input
@@ -85,8 +85,8 @@ export default function AdminSidebar({ onLogout }) {
           <GarachenaMark />
         </div>
         <div>
-          <p className="text-[13px] font-black tracking-tight text-white leading-none">GARACHENA</p>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Panel Admin</p>
+          <p className="text-13 font-black tracking-tight text-white leading-none">GARACHENA</p>
+          <p className="text-10 text-slate-400 font-bold uppercase tracking-widest mt-1">Panel Admin</p>
         </div>
       </div>
 
@@ -102,14 +102,14 @@ export default function AdminSidebar({ onLogout }) {
         <div className="px-3.5 space-y-1">
           <Link
             to="/"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5"
           >
             <ExternalLink className="w-4 h-4 shrink-0" /> Ver tienda
           </Link>
           <button
             type="button"
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5"
           >
             <LogOut className="w-4 h-4 shrink-0" /> Cerrar sesión
           </button>

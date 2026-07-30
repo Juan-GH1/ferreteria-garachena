@@ -43,17 +43,17 @@ function QuantityStepper({ qty, onChange, max }) {
         onClick={() => onChange(Math.max(1, qty - 1))}
         disabled={qty <= 1}
         title="Restar unidad"
-        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-neutral-500 transition-colors"
+        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
       >
         <Minus className="w-3.5 h-3.5" />
       </button>
-      <span className="text-[14px] font-semibold w-10 text-center tabular-nums">{qty}</span>
+      <span className="text-sm font-semibold w-10 text-center tabular-nums">{qty}</span>
       <button
         type="button"
         onClick={() => onChange(Math.min(max, qty + 1))}
         disabled={qty >= max}
         title="Sumar unidad"
-        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-neutral-500 transition-colors"
+        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-500 hover:text-brand-blue disabled:opacity-30 disabled:hover:text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
       >
         <Plus className="w-3.5 h-3.5" />
       </button>
@@ -73,7 +73,7 @@ function VolumeTierTable({ basePrice, qty }) {
   return (
     <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
       <div className="px-4 py-3 border-b border-neutral-100">
-        <p className="text-[13px] font-semibold text-neutral-900 flex items-center gap-1.5">
+        <p className="text-13 font-semibold text-neutral-900 flex items-center gap-1.5">
           <Layers className="w-3.5 h-3.5 text-brand-blue" /> Precio por volumen
         </p>
       </div>
@@ -82,11 +82,11 @@ function VolumeTierTable({ basePrice, qty }) {
           const tierUnitPrice = Math.round(basePrice * (1 - t.discount));
           const active = t.label === tier.label;
           return (
-            <li key={t.label} className={`flex items-center justify-between px-4 py-2.5 text-[13px] ${active ? 'bg-brand-blueLight' : ''}`}>
+            <li key={t.label} className={`flex items-center justify-between px-4 py-2.5 text-13 ${active ? 'bg-brand-blueLight' : ''}`}>
               <span className={`font-medium ${active ? 'text-brand-blue' : 'text-neutral-600'}`}>{t.label}</span>
               <span className="flex items-center gap-2">
                 {t.discount > 0 && (
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                  <span className="text-2xs font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
                     -{Math.round(t.discount * 100)}%
                   </span>
                 )}
@@ -97,7 +97,7 @@ function VolumeTierTable({ basePrice, qty }) {
         })}
       </ul>
       {savings > 0 && (
-        <p className="px-4 py-2.5 text-[12px] font-medium text-emerald-700 bg-emerald-50 border-t border-emerald-100">
+        <p className="px-4 py-2.5 text-xs font-medium text-emerald-700 bg-emerald-50 border-t border-emerald-100">
           Ahorras {formatPrice(savings)} comprando {qty} unidades ({Math.round(tier.discount * 100)}% de descuento) · {formatPrice(unitPrice)} c/u
         </p>
       )}
@@ -184,7 +184,7 @@ export default function ProductDetail() {
           <Link to="/" className="relative p-2 text-slate-600 hover:text-brand-blue" title="Ver carrito en el catálogo">
             <ShoppingCart className="w-5 h-5" />
             {cart.totalQty > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center font-bold">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-10 flex items-center justify-center font-bold">
                 {cart.totalQty}
               </span>
             )}
@@ -222,12 +222,12 @@ export default function ProductDetail() {
 
             <div className="space-y-6">
               <div>
-                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.16em]">{product.brand || 'Garachena'}</p>
+                <p className="text-2xs text-slate-400 font-bold uppercase tracking-[0.16em]">{product.brand || 'Garachena'}</p>
                 <h1 className="text-[26px] leading-tight font-black tracking-tight text-slate-900 mt-1.5">{product.name}</h1>
                 <p className="text-sm text-slate-400 font-medium mt-1">{product.category}</p>
               </div>
 
-              {product.description && <p className="text-[15px] text-slate-600 leading-relaxed">{product.description}</p>}
+              {product.description && <p className="text-15 text-slate-600 leading-relaxed">{product.description}</p>}
 
               <div className="flex items-baseline gap-2">
                 <span className="text-[34px] font-black tracking-tight text-slate-900 tabular-nums">{formatPrice(product.price)}</span>
@@ -239,7 +239,7 @@ export default function ProductDetail() {
                 <StockBadge branch="Sucursal Vitacura" qty={product.stock?.Vitacura ?? 0} />
               </div>
 
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-500">
+              <div className="flex items-center gap-2 text-13 font-semibold text-slate-500">
                 <Truck className="w-4 h-4 text-brand-blue" />
                 Despacho Express en Santiago · Retiro en tienda gratis
               </div>
@@ -258,7 +258,7 @@ export default function ProductDetail() {
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 disabled={outOfStock}
                 onClick={() => cart.addMany({ ...product, stock }, qty)}
-                className="w-full flex items-center justify-center gap-2.5 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-4 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2.5 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-4 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {outOfStock ? 'Sin stock disponible' : qty > 1 ? `Añadir ${qty} unidades al carro` : 'Añadir al carro'}
@@ -268,7 +268,7 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={() => setCalculatorOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 text-[13px] font-bold text-brand-blue bg-brand-blueLight hover:bg-blue-100 py-3 rounded-xl transition-colors"
+                  className="w-full flex items-center justify-center gap-2 text-13 font-bold text-brand-blue bg-brand-blueLight hover:bg-blue-100 py-3 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
                 >
                   <Calculator className="w-4 h-4" /> ¿Cuánta pintura necesito? Calcula por m²
                 </button>

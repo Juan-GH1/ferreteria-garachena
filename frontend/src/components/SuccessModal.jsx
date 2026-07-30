@@ -23,7 +23,7 @@ export default function SuccessModal({ order, onClose }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full mt-6 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors"
+                className="w-full mt-6 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
               >
                 Aceptar
               </button>

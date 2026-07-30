@@ -13,7 +13,7 @@ function AvailabilityBadge({ stock }) {
 
   return (
     <span
-      className={`absolute top-3 right-3 backdrop-blur-sm bg-white/90 ${tone} text-[10px] font-semibold px-2.5 py-1 rounded-full ring-1 ring-inset ring-neutral-200/70`}
+      className={`absolute top-3 right-3 backdrop-blur-sm bg-white/90 ${tone} text-10 font-semibold px-2.5 py-1 rounded-full ring-1 ring-inset ring-neutral-200/70`}
     >
       {label}
     </span>
@@ -41,8 +41,8 @@ export default function ProductCard({ product, onAdd }) {
           <AvailabilityBadge stock={stock} />
         </Link>
         <div className="p-5 space-y-1.5">
-          <p className="text-[11px] text-neutral-400 font-medium uppercase tracking-[0.14em]">{product.brand || 'Garachena'}</p>
-          <h3 className="font-semibold tracking-tight text-neutral-900 text-[15px] leading-snug group-hover:text-brand-blue transition-colors">
+          <p className="text-2xs text-neutral-400 font-medium uppercase tracking-[0.14em]">{product.brand || 'Garachena'}</p>
+          <h3 className="font-semibold tracking-tight text-neutral-900 text-15 leading-snug group-hover:text-brand-blue transition-colors">
             <Link to={`/producto/${product.id}`}>{product.name}</Link>
           </h3>
         </div>
@@ -50,7 +50,7 @@ export default function ProductCard({ product, onAdd }) {
       <div className="p-5 pt-1 flex items-end justify-between gap-4">
         <div>
           <span className="text-xl font-semibold tracking-tight text-neutral-900 tabular-nums">{formatPrice(product.price)}</span>
-          <p className="text-[10px] text-neutral-400 font-medium mt-0.5">IVA incluido</p>
+          <p className="text-10 text-neutral-400 font-medium mt-0.5">IVA incluido</p>
         </div>
         <motion.button
           type="button"
@@ -60,7 +60,7 @@ export default function ProductCard({ product, onAdd }) {
           disabled={outOfStock}
           onClick={() => onAdd({ ...product, stock })}
           title={outOfStock ? 'Sin stock disponible' : 'Añadir al carro'}
-          className="bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-full shadow-sm transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-brand-blue"
+          className="bg-brand-blue hover:bg-brand-blueDark text-white p-3 rounded-full shadow-sm transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
         >
           <ShoppingCart className="w-4 h-4" />
         </motion.button>

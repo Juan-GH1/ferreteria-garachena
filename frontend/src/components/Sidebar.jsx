@@ -31,7 +31,7 @@ export default function Sidebar({ facets, filters, onFiltersChange }) {
             <button
               type="button"
               onClick={() => onFiltersChange(EMPTY_FILTERS)}
-              className="text-xs font-bold text-brand-blue hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-brand-blue hover:underline flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 rounded"
             >
               <X className="w-3 h-3" /> Limpiar
             </button>
@@ -106,7 +106,7 @@ export default function Sidebar({ facets, filters, onFiltersChange }) {
             />
           </div>
           {facets.priceRange && (
-            <p className="text-[11px] text-slate-400 font-semibold">
+            <p className="text-2xs text-slate-400 font-semibold">
               Catálogo: {formatPrice(facets.priceRange.min)} – {formatPrice(facets.priceRange.max)}
             </p>
           )}

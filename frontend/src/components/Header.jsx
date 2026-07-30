@@ -59,7 +59,7 @@ export default function Header({
       <div className="max-w-6xl mx-auto flex items-center gap-2.5 sm:gap-4 rounded-full bg-white/80 backdrop-blur-md border border-neutral-200/50 shadow-sm px-3 sm:px-5 py-2.5">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <GarachenaLogo />
-          <span className="hidden sm:block text-[15px] font-semibold tracking-tight text-neutral-900 leading-none">
+          <span className="hidden sm:block text-15 font-semibold tracking-tight text-neutral-900 leading-none">
             GARA<span className="text-brand-blue">CHENA</span>
           </span>
         </Link>
@@ -73,13 +73,13 @@ export default function Header({
               onChange={(event) => onSearchQueryChange(event.target.value)}
               placeholder="Buscar herramientas, pinturas..."
               /* py-3 con text-sm = 44px de alto (área táctil mínima recomendada) */
-              className="w-full pl-10 pr-3 py-3 bg-neutral-100 border-0 rounded-full text-neutral-800 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white transition-colors text-[13px] sm:text-sm font-medium"
+              className="w-full pl-10 pr-3 py-3 bg-neutral-100 border-0 rounded-full text-neutral-800 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white transition-colors text-13 sm:text-sm font-medium"
             />
           </div>
           {searchOpen && (
             <div className="absolute left-0 right-0 mt-2 bg-white border border-neutral-200/70 rounded-2xl shadow-lift overflow-hidden z-50">
               {searchApproximate && searchResults.length > 0 && (
-                <p className="px-3.5 py-1.5 text-[11px] font-medium text-amber-700 bg-amber-50 border-b border-amber-100">
+                <p className="px-3.5 py-1.5 text-2xs font-medium text-amber-700 bg-amber-50 border-b border-amber-100">
                   Mostrando resultados aproximados para “{searchQuery.trim()}”
                 </p>
               )}
@@ -92,7 +92,7 @@ export default function Header({
                       <button
                         type="button"
                         onClick={() => onSelectResult(product)}
-                        className="w-full text-left px-3.5 py-3 flex items-center justify-between gap-3 hover:bg-neutral-50 transition-colors"
+                        className="w-full text-left px-3.5 py-3 flex items-center justify-between gap-3 hover:bg-neutral-50 transition-colors focus-visible:outline-none focus-visible:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-blue/30"
                       >
                         <span className="min-w-0">
                           {/* font-bold (no font-medium): la suite E2E lee este nombre vía el selector span.font-bold */}
@@ -129,13 +129,13 @@ export default function Header({
         <button
           type="button"
           onClick={onOpenCart}
-          className="relative shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 hover:bg-neutral-800 text-white transition-colors"
+          className="relative shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 hover:bg-neutral-800 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-900"
           title="Ver carrito"
         >
           <ShoppingCart className="w-4 h-4" />
           <CartBadge
             count={cartCount}
-            className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-brand-blue text-white rounded-full text-[10px] flex items-center justify-center font-bold border-2 border-white"
+            className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-brand-blue text-white rounded-full text-10 flex items-center justify-center font-bold border-2 border-white"
           />
         </button>
       </div>

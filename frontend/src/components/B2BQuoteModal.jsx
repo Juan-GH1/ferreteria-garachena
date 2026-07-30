@@ -57,7 +57,12 @@ export default function B2BQuoteModal({ open, onClose, items }) {
                   <h3 className="text-base font-black tracking-tight text-navy-900">Cotización B2B</h3>
                   <p className="text-xs text-slate-400 font-medium mt-0.5">Datos opcionales, solo para el PDF</p>
                 </div>
-                <button type="button" onClick={handleClose} title="Cerrar" className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  title="Cerrar"
+                  className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -103,7 +108,7 @@ export default function B2BQuoteModal({ open, onClose, items }) {
                   transition={SPRING}
                   onClick={handleGenerate}
                   disabled={generating || items.length === 0}
-                  className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3.5 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:opacity-60"
+                  className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3.5 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
                 >
                   <FileDown className="w-4 h-4" /> {generating ? 'Generando...' : 'Descargar PDF'}
                 </motion.button>

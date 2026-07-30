@@ -41,7 +41,7 @@ export default function CategoryGrid({ onSelect, categoryCounts = [] }) {
             whileHover={{ y: -3 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelect(cat.values)}
-            className="group relative bg-white rounded-2xl border border-neutral-100 p-5 text-left flex flex-col gap-3 overflow-hidden hover:border-neutral-200 transition-colors duration-200"
+            className="group relative bg-white rounded-2xl border border-neutral-100 p-5 text-left flex flex-col gap-3 overflow-hidden hover:border-neutral-200 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-900"
           >
             {/* Blob desaturado: mismo lenguaje de movimiento que antes, sin color por categoría. */}
             <motion.span
@@ -55,12 +55,12 @@ export default function CategoryGrid({ onSelect, categoryCounts = [] }) {
             <span className="relative w-11 h-11 rounded-xl bg-neutral-50 text-neutral-800 flex items-center justify-center">
               <cat.icon className="w-5 h-5" />
             </span>
-            <span className="relative text-[13px] font-semibold tracking-tight text-neutral-900 leading-tight">{cat.label}</span>
+            <span className="relative text-13 font-semibold tracking-tight text-neutral-900 leading-tight">{cat.label}</span>
 
             {/* aria-hidden: es información complementaria (conteo/disponibilidad), no
                 debe sumarse al nombre accesible del botón (que debe seguir siendo
                 solo la categoría, p. ej. "Pinturas", para lectores de pantalla y tests). */}
-            <span aria-hidden="true" className="relative flex items-center gap-1.5 text-[11px] font-medium text-neutral-400">
+            <span aria-hidden="true" className="relative flex items-center gap-1.5 text-2xs font-medium text-neutral-400">
               {inStock && (
                 <span className="relative flex w-1.5 h-1.5 shrink-0">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />

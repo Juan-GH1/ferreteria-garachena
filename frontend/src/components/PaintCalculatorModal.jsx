@@ -90,7 +90,12 @@ export default function PaintCalculatorModal({ open, onClose, product, onAdd }) 
                   </h3>
                   <p className="text-xs text-slate-400 font-medium mt-0.5">Cuántos galones necesitas según tu superficie</p>
                 </div>
-                <button type="button" onClick={handleClose} title="Cerrar" className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  title="Cerrar"
+                  className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -115,14 +120,14 @@ export default function PaintCalculatorModal({ open, onClose, product, onAdd }) 
                       transition={{ duration: 0.15 }}
                       className="bg-brand-blueLight rounded-2xl p-4 text-center"
                     >
-                      <p className="text-[13px] font-semibold text-slate-600">Necesitas</p>
+                      <p className="text-13 font-semibold text-slate-600">Necesitas</p>
                       <p className="text-2xl font-black tracking-tight text-brand-blue mt-0.5 tabular-nums">
                         {result.gallonsToBuy} {result.gallonsToBuy === 1 ? 'Galón' : 'Galones'}
                       </p>
-                      <p className="text-[13px] font-semibold text-slate-600 mt-0.5">
+                      <p className="text-13 font-semibold text-slate-600 mt-0.5">
                         para cubrir {result.netArea.toFixed(1)} m² a {result.coats} {result.coats === 1 ? 'mano' : 'manos'}
                       </p>
-                      <p className="text-[11px] text-slate-400 font-medium mt-1.5">Rendimiento estimado: ~37,5 m² por galón a 1 mano.</p>
+                      <p className="text-2xs text-slate-400 font-medium mt-1.5">Rendimiento estimado: ~37,5 m² por galón a 1 mano.</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -141,7 +146,7 @@ export default function PaintCalculatorModal({ open, onClose, product, onAdd }) 
                     transition={SPRING}
                     onClick={handleAddToCart}
                     disabled={adding}
-                    className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3.5 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:opacity-60"
+                    className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3.5 rounded-2xl shadow-lg shadow-brand-blue/25 hover:shadow-xl hover:shadow-brand-blue/30 transition-all duration-300 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     {adding ? 'Agregando...' : `Añadir ${result.gallonsToBuy} ${result.gallonsToBuy === 1 ? 'Galón' : 'Galones'} al Carrito`}

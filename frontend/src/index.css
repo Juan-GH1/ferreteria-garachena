@@ -32,7 +32,37 @@
   --shadow-soft: 0 8px 30px rgb(0 0 0 / 0.04);
   --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px rgb(15 23 42 / 0.06);
   --shadow-lift: 0 2px 6px rgb(15 23 42 / 0.07), 0 18px 44px rgb(15 23 42 / 0.12);
+
+  /*
+   * Escala tipográfica editorial: formaliza como tokens los tamaños que ya se
+   * usaban repetidos a mano por todo el código (`text-[13px]`, `text-[11px]`,
+   * etc.). Los valores no cambian -- esto es un rename a un sistema
+   * reutilizable, no un rediseño visual. `text-xs` (12px) y `text-sm` (14px)
+   * son los de Tailwind por defecto y ya cubrían dos de los tamaños; el resto
+   * (10/11/13/15/17px) no tenía nombre y se agrega aquí.
+   */
+  --text-10: 0.625rem; /* 10px */
+  --text-10--line-height: 0.875rem;
+  --text-2xs: 0.6875rem; /* 11px */
+  --text-2xs--line-height: 1rem;
+  --text-13: 0.8125rem; /* 13px */
+  --text-13--line-height: 1.125rem;
+  --text-15: 0.9375rem; /* 15px */
+  --text-15--line-height: 1.375rem;
+  --text-17: 1.0625rem; /* 17px */
+  --text-17--line-height: 1.5rem;
 }
+
+/*
+ * Convención de motion (Framer Motion + transiciones CSS):
+ * - Micro-interacciones (hover de botón/tarjeta, cambio de borde/color):
+ *   150-200ms, ease-out. Deben animar solo `transform`/`opacity`/`color`
+ *   para no forzar layout/paint (rendimiento en GPU).
+ * - Paneles, modales y transiciones de layout (drawer, entrada de secciones):
+ *   300-350ms, ease-out. Nunca springs por defecto (se ven "rebotonas" en un
+ *   sistema editorial); solo se usan springs puntuales para indicadores
+ *   deslizantes tipo `layoutId` (ej. AdminSidebar, switcher B2C/B2B).
+ */
 
 body {
   margin: 0;

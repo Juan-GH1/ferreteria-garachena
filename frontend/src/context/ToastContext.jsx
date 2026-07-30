@@ -25,7 +25,7 @@ export function ToastProvider({ children }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-              className="flex items-center gap-2.5 bg-white/90 backdrop-blur-md text-slate-700 text-[13px] font-semibold tracking-tight px-4 py-3 rounded-2xl shadow-lift ring-1 ring-slate-900/5 max-w-sm text-left"
+              className="flex items-center gap-2.5 bg-white/90 backdrop-blur-md text-slate-700 text-13 font-semibold tracking-tight px-4 py-3 rounded-2xl shadow-lift ring-1 ring-slate-900/5 max-w-sm text-left"
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               <span className="leading-snug">{message}</span>

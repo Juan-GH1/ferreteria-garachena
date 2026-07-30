@@ -24,12 +24,12 @@ export default function AboutSection() {
           transition={EASE}
           className="lg:col-span-7"
         >
-          <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 font-medium">Quiénes Somos</p>
+          <p className="text-2xs uppercase tracking-[0.2em] text-neutral-400 font-medium">Quiénes Somos</p>
           <h2 className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900 leading-[1.1]">
             Tu ferretería familiar,
             <br className="hidden sm:block" /> con precisión industrial
           </h2>
-          <p className="mt-5 text-[15px] text-neutral-500 leading-relaxed max-w-lg">
+          <p className="mt-5 text-15 text-neutral-500 leading-relaxed max-w-lg">
             Ferretería Garachena nació en el corazón de Providencia con una convicción simple: quien construye o
             pinta merece stock real, precios claros y respuestas rápidas. Hoy combinamos esa cercanía familiar con
             tintometría digital, facturación automática a tu RUT y despacho propio en el sector oriente de Santiago.
@@ -49,7 +49,7 @@ export default function AboutSection() {
                 <stat.icon className="w-4 h-4" />
               </span>
               <p className="mt-3 text-xl font-semibold tracking-tight text-neutral-900 tabular-nums">{stat.value}</p>
-              <p className="mt-0.5 text-[11px] text-neutral-500 leading-tight">{stat.label}</p>
+              <p className="mt-0.5 text-2xs text-neutral-500 leading-tight">{stat.label}</p>
             </div>
           ))}
         </motion.div>

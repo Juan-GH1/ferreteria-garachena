@@ -26,7 +26,7 @@ function KpiCard({ icon: Icon, tone, label, value, sub }) {
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tone}`}>
         <Icon className="w-5 h-5" />
       </div>
-      <p className="mt-4 text-[13px] font-semibold text-slate-500">{label}</p>
+      <p className="mt-4 text-13 font-semibold text-slate-500">{label}</p>
       <p className="mt-1 text-3xl font-black tracking-tight text-navy-900 tabular-nums">{value}</p>
       {sub && <p className="mt-1 text-xs text-slate-400 font-medium">{sub}</p>}
     </motion.div>
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
                   <ul className="divide-y divide-slate-100">
                     {summary.low_stock.items.map((item) => (
                       <li key={item.id} className="py-2.5 flex items-center justify-between gap-3">
-                        <span className="text-[13px] font-semibold text-slate-700 truncate">{item.name}</span>
+                        <span className="text-13 font-semibold text-slate-700 truncate">{item.name}</span>
                         <span className="text-xs font-bold text-rose-600 shrink-0 tabular-nums">{item.total_stock} un.</span>
                       </li>
                     ))}
@@ -141,14 +141,14 @@ export default function AdminDashboard() {
                     {summary.recent_orders.map((order) => (
                       <li key={order.id} className="py-2.5 flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-[13px] font-bold text-slate-700 truncate">
+                          <p className="text-13 font-bold text-slate-700 truncate">
                             #{order.id} · {order.customer_name}
                           </p>
-                          <p className="text-[11px] text-slate-400 font-medium">{formatDateTime(order.created_at)}</p>
+                          <p className="text-2xs text-slate-400 font-medium">{formatDateTime(order.created_at)}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[13px] font-bold text-slate-700 tabular-nums">{formatPrice(order.total_amount)}</span>
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset ${statusStyle(order.status)}`}>
+                          <span className="text-13 font-bold text-slate-700 tabular-nums">{formatPrice(order.total_amount)}</span>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-10 font-bold ring-1 ring-inset ${statusStyle(order.status)}`}>
                             {statusLabel(order.status)}
                           </span>
                         </div>

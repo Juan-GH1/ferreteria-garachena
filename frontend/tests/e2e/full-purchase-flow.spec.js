@@ -23,7 +23,7 @@ test('compra completa: catálogo, simulador, búsqueda con typo y checkout con f
   await expect(page.getByText(/Comprar este color en 1 Galón|Ver ficha del producto/)).toBeVisible({ timeout: 10_000 });
 
   // --- Buscar con un typo ("taldro" en vez de "taladro") ---
-  const searchInput = page.getByPlaceholder(/¿Qué herramienta o pintura buscas hoy/);
+  const searchInput = page.getByPlaceholder(/Buscar herramientas, pinturas/);
   await searchInput.fill('taldro');
   await expect(page.getByText(/Mostrando resultados aproximados/)).toBeVisible({ timeout: 10_000 });
   const firstResult = page.locator('ul.divide-y.divide-slate-100 li button').first();

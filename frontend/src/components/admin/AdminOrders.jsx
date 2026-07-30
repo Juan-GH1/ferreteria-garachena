@@ -22,13 +22,13 @@ function DocumentBadge({ order }) {
   return (
     <div>
       <span
-        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ring-1 ring-inset ${
+        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-2xs font-bold ring-1 ring-inset ${
           isFactura ? 'bg-indigo-50 text-indigo-700 ring-indigo-100' : 'bg-slate-100 text-slate-600 ring-slate-200'
         }`}
       >
         {isFactura ? 'Factura' : 'Boleta'}
       </span>
-      <p className="text-[11px] text-slate-400 font-medium mt-1 tabular-nums">{rut}</p>
+      <p className="text-2xs text-slate-400 font-medium mt-1 tabular-nums">{rut}</p>
     </div>
   );
 }
@@ -38,7 +38,7 @@ function StatusSelect({ order, onChange }) {
     <select
       value={order.status}
       onChange={(e) => onChange(order.id, e.target.value)}
-      className={`text-[11px] font-bold rounded-full pl-2.5 pr-6 py-1 ring-1 ring-inset border-0 focus:outline-none focus:ring-2 focus:ring-brand-blue cursor-pointer appearance-none bg-no-repeat bg-[right_6px_center] ${statusStyle(
+      className={`text-2xs font-bold rounded-full pl-2.5 pr-6 py-1 ring-1 ring-inset border-0 focus:outline-none focus:ring-2 focus:ring-brand-blue cursor-pointer appearance-none bg-no-repeat bg-[right_6px_center] ${statusStyle(
         order.status
       )}`}
       style={{
@@ -117,7 +117,7 @@ export default function AdminOrders() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-50 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <tr className="bg-slate-50 text-left text-2xs font-bold text-slate-400 uppercase tracking-wider">
                   <th className="px-5 py-3">Orden</th>
                   <th className="px-5 py-3">Fecha</th>
                   <th className="px-5 py-3">Cliente</th>

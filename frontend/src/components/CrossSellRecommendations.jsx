@@ -82,12 +82,12 @@ export default function CrossSellRecommendations({ product, onAdd, excludeIds = 
                 className="shrink-0 w-32 snap-start bg-slate-50 rounded-xl border border-slate-100 p-2.5 flex flex-col"
               >
                 <ProductImage product={item} loading="lazy" className="aspect-square rounded-lg" />
-                <p className="text-[11px] font-bold text-slate-700 leading-snug mt-2 line-clamp-2 min-h-[2.2em]">{item.name}</p>
+                <p className="text-2xs font-bold text-slate-700 leading-snug mt-2 line-clamp-2 min-h-[2.2em]">{item.name}</p>
                 <button
                   type="button"
                   onClick={() => handleAdd(item)}
                   disabled={addingId === item.id}
-                  className="mt-auto pt-2 w-full flex items-center justify-center gap-1 text-[10.5px] font-bold text-brand-blue bg-brand-blueLight hover:bg-blue-100 rounded-lg py-2 transition-colors disabled:opacity-50"
+                  className="mt-auto pt-2 w-full flex items-center justify-center gap-1 text-10 font-bold text-brand-blue bg-brand-blueLight hover:bg-blue-100 rounded-lg py-2 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-brand-blue"
                 >
                   <PlusCircle className="w-3.5 h-3.5 shrink-0" />
                   {addingId === item.id ? 'Agregando...' : `Añadir +${formatPrice(item.price)}`}
