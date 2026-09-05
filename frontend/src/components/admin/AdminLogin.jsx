@@ -78,7 +78,7 @@ export default function AdminLogin({ onLogin }) {
               whileTap={{ scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               onClick={handleSubmit}
-              className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3 rounded-xl shadow-md shadow-brand-blue/20 transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white font-bold tracking-tight py-3 rounded-xl shadow-md shadow-brand-blue/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
             >
               <KeyRound className="w-4 h-4" /> Ingresar
             </motion.button>
@@ -86,7 +86,7 @@ export default function AdminLogin({ onLogin }) {
 
           <Link
             to="/"
-            className="mt-6 flex items-center justify-center gap-1.5 text-xs font-bold text-slate-400 hover:text-brand-blue transition-colors"
+            className="mt-6 flex items-center justify-center gap-1.5 text-xs font-bold text-slate-400 hover:text-brand-blue transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 rounded"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Volver a la tienda
           </Link>

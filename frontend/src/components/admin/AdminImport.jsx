@@ -86,14 +86,22 @@ export default function AdminImport() {
         </div>
 
         <div
+          role="button"
+          tabIndex={0}
           onClick={() => fileInputRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
           onDragOver={(e) => {
             e.preventDefault();
             setDragActive(true);
           }}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors ${
+          className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue ${
             dragActive ? 'border-brand-blue bg-brand-blueLight' : 'border-slate-300 hover:border-brand-blue hover:bg-brand-blueLight'
           }`}
         >

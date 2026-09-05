@@ -23,7 +23,7 @@ function GarachenaMark() {
 
 function NavItem({ to, label, icon: Icon, end }) {
   return (
-    <NavLink to={to} end={end} className="relative block">
+    <NavLink to={to} end={end} className="relative block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
       {({ isActive }) => (
         <span
           className={`relative z-10 flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold tracking-tight transition-colors ${
@@ -102,14 +102,14 @@ export default function AdminSidebar({ onLogout }) {
         <div className="px-3.5 space-y-1">
           <Link
             to="/"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <ExternalLink className="w-4 h-4 shrink-0" /> Ver tienda
           </Link>
           <button
             type="button"
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-13 font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors -mx-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <LogOut className="w-4 h-4 shrink-0" /> Cerrar sesión
           </button>

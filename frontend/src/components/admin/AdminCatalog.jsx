@@ -125,7 +125,7 @@ export default function AdminCatalog() {
                         type="button"
                         onClick={() => setEditingProduct(product)}
                         title="Editar precio y stock"
-                        className="p-2 rounded-lg text-slate-400 hover:text-brand-blue hover:bg-brand-blueLight transition-colors"
+                        className="p-2 rounded-lg text-slate-400 hover:text-brand-blue hover:bg-brand-blueLight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -154,7 +154,7 @@ export default function AdminCatalog() {
                   type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                  className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-brand-blue"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -162,7 +162,7 @@ export default function AdminCatalog() {
                   type="button"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                  className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-brand-blue"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>

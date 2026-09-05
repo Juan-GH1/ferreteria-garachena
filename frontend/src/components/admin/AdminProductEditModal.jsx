@@ -69,7 +69,12 @@ export default function AdminProductEditModal({ product, onClose, onSaved }) {
                   <h3 className="text-base font-black tracking-tight text-navy-900">Editar producto</h3>
                   <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">{product.name}</p>
                 </div>
-                <button type="button" onClick={onClose} title="Cerrar" className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50 shrink-0">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  title="Cerrar"
+                  className="p-2 text-slate-400 hover:text-brand-blue rounded-lg hover:bg-slate-50 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -119,7 +124,7 @@ export default function AdminProductEditModal({ product, onClose, onSaved }) {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
+                    className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400"
                   >
                     Cancelar
                   </button>
@@ -127,7 +132,7 @@ export default function AdminProductEditModal({ product, onClose, onSaved }) {
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors disabled:opacity-60"
+                    className="flex-1 py-3 rounded-xl bg-brand-blue hover:bg-brand-blueDark text-white font-bold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-blue"
                   >
                     {saving ? 'Guardando...' : 'Guardar cambios'}
                   </button>

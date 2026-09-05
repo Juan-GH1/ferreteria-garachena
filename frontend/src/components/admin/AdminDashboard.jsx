@@ -126,7 +126,10 @@ export default function AdminDashboard() {
               <PanelCard
                 title="Últimos Pedidos"
                 action={
-                  <Link to="/admin/pedidos" className="text-xs font-bold text-brand-blue hover:underline flex items-center gap-1">
+                  <Link
+                    to="/admin/pedidos"
+                    className="text-xs font-bold text-brand-blue hover:underline flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 rounded"
+                  >
                     Ver todos <ArrowRight className="w-3 h-3" />
                   </Link>
                 }
